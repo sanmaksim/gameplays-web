@@ -1,6 +1,7 @@
 import { Card, Container } from "react-bootstrap";
 import { RootState } from "../store";
 import { toast } from "react-toastify";
+import { useAddPlayMutation } from "../slices/playsApiSlice";
 import { useGetGameMutation } from "../slices/gamesApiSlice";
 import { useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
@@ -8,10 +9,31 @@ import { useSelector } from "react-redux";
 import Loader from "../components/Loader";
 import type SearchResult from "../types/SearchResultType";
 
+type Status = {
+  playing: number,
+  played: number,
+  wishlist: number,
+  backlog: number
+};
+
+type FormData = {
+  userId: number,
+  gameId: string,
+  status: number
+};
+
 function GamePage() {
   const { userInfo } = useSelector((state: RootState) => state.auth);
   const [getGame] = useGetGameMutation();
+  const [addPlay] = useAddPlayMutation();
   const { gameId } = useParams();
+
+  const status: Status = {
+    playing: 0,
+    played: 1,
+    wishlist: 2,
+    backlog: 3
+  };
 
   const fetchGameData = async (id: string = ''): Promise<SearchResult> => {
     try {
@@ -48,6 +70,21 @@ function GamePage() {
     queryFn: () => fetchGameData(gameId)
   })
 
+  const createPlay = async (playStatus: number): Promise<void> => {
+    const formData: FormData = {
+      userId: userInfo.userId,
+      gameId: gameId!,
+      status: playStatus
+    };
+
+    try {
+      await addPlay(formData).unwrap();
+      toast.success("Game added successfully.");
+    } catch (error: any) {
+      toast.error(error.data.message || "An error occurred.");
+    }
+  };
+
   let formattedDate: string;
   if (data && data.original_release_date) {
       const dateString: string = data.original_release_date;
@@ -73,7 +110,8 @@ function GamePage() {
               ))}
               {userInfo ? (
                 <div className="mt-auto">
-                  Add to: Playing | Played | Wish List | Backlog
+                  Add to: Playing | Played | Wish List | 
+                  <button onClick={() => createPlay(status.backlog)}>Backlog</button>
                 </div>
               ) : (
                 <></>
