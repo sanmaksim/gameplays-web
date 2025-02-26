@@ -78,8 +78,8 @@ function GamePage() {
     };
 
     try {
-      await addPlay(formData).unwrap();
-      toast.success("Game added successfully.");
+      const response = await addPlay(formData).unwrap();
+      toast.success(response.message);
     } catch (error: any) {
       toast.error(error.data.message || "An error occurred.");
     }
