@@ -110,7 +110,10 @@ function GamePage() {
               ))}
               {userInfo ? (
                 <div className="mt-auto">
-                  Add to: Playing | Played | Wish List | 
+                  Add to: 
+                  <button onClick={() => createPlay(status.playing)}>Playing</button> | 
+                  <button onClick={() => createPlay(status.played)}>Played</button> | 
+                  <button onClick={() => createPlay(status.wishlist)}>Wishlist</button> | 
                   <button onClick={() => createPlay(status.backlog)}>Backlog</button>
                 </div>
               ) : (
