@@ -7,7 +7,7 @@ import { useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { useSelector } from "react-redux";
 import Loader from "../components/Loader";
-import type SearchResult from "../types/SearchResultType";
+import type { SearchResult } from "../types/SearchResultType";
 
 type Status = {
   playing: number,
@@ -37,31 +37,22 @@ function GamePage() {
 
   const fetchGameData = async (id: string = ''): Promise<SearchResult> => {
     try {
-      // dispatch the query via redux
+      // dispatch query via redux
       const response = await getGame(id).unwrap();
       if (!response) {
         throw new Error('Error returning game info.');
       }
       const searchResult: SearchResult = response.results;
       return searchResult;
-    } catch (error: any) {
-      toast.error('Failed to fetch game data.');
-      console.error(error);
-      return {
-        deck: '',
-        description: '',
-        id: 0,
-        image: {
-          icon_url: '',
-          tiny_url: '',
-          small_url: ''
-        },
-        name: '',
-        original_release_date: '',
-        platforms: [
-          { name: '' }
-        ]
-      };
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        toast.error('Failed to fetch game data.');
+        console.error(error);
+      } else {
+        toast.error('Unknown error occurred.');
+        console.error(error);
+      }
+      return {};
     }
   };
 
@@ -79,9 +70,16 @@ function GamePage() {
 
     try {
       const response = await addPlay(formData).unwrap();
+      if (!response) {
+        throw new Error('Error adding play.');
+      }
       toast.success(response.message);
-    } catch (error: any) {
-      toast.error(error.data.message || "An error occurred.");
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        toast.error("Failed to add play.");
+      } else {
+        toast.error("Uknown error occurred.");
+      }
     }
   };
 
@@ -99,13 +97,13 @@ function GamePage() {
       {data && (
         <Card className="my-2">
           <Card.Body className="d-flex">
-            <img src={data.image.small_url} alt={data.name} />
+            {data.image && <img src={data.image.small_url} alt={data.name} /> }
             <div className="d-flex flex-column mx-2">
               <Card.Title>{data.name}</Card.Title>
               <Card.Subtitle className="mb-2 text-muted">Release Date: {formattedDate!}</Card.Subtitle>
               <Card.Text>{data.deck}</Card.Text>
               <Card.Title>Platforms</Card.Title>
-              {data.platforms.map((platform) => (
+              {data.platforms && data.platforms.map((platform) => (
                 <li key={platform.name} style={{ listStyle: 'none' }}>{platform.name}</li>
               ))}
               {userInfo ? (
