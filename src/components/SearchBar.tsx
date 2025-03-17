@@ -1,48 +1,22 @@
-import { 
-    CSSObjectWithLabel, 
-    InputActionMeta, 
-    MultiValue, 
-    OptionProps, 
-    SelectInstance, 
-    SingleValue 
+import {
+    CSSObjectWithLabel,
+    InputActionMeta,
+    MultiValue,
+    OptionProps,
+    SelectInstance,
+    SingleValue
 } from 'react-select';
 import { CSSProperties, KeyboardEvent, useEffect, useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import AsyncSelect from 'react-select/async';
 import debounce from 'lodash.debounce';
-import type Option from '../types/OptionType';
-import type Options from '../types/OptionsType';
-import type SearchResults from '../types/SearchResultsType';
+import type { Option } from '../types/OptionType';
+import type { Options } from '../types/OptionsType';
+import type { SearchResults } from '../types/SearchResultsType';
 
 function SearchBar() {
     const navigate = useNavigate();
-
-    let initSearchResults: SearchResults = {
-        error: '',
-        limit: 0,
-        offset: 0,
-        number_of_page_results: 0,
-        number_of_total_results: 0,
-        status_code: 0,
-        results: [
-            {
-                deck: '',
-                description: '',
-                id: 0,
-                image: {
-                    icon_url: '',
-                    tiny_url: '',
-                    small_url: ''
-                },
-                name: '',
-                original_release_date: '',
-                platforms: [
-                    { name: '' }
-                ]
-            }
-        ]
-    }
 
     // track user entered input
     const [inputValue, setInputValue] = useState<string>('');
@@ -54,7 +28,7 @@ function SearchBar() {
     const [options, setOptions] = useState<Options>([]);
 
     // track returned results object
-    let [searchResults, setSearchResults] = useState<SearchResults>(initSearchResults);
+    let [searchResults, setSearchResults] = useState<SearchResults>({});
 
     // initialize ref object with the 'current' property set to null
     // ref selection is required for AsyncSelect's blur() and clearValue() methods
@@ -69,8 +43,22 @@ function SearchBar() {
     // handle the current AsyncSelect option
     const handleChange = (currentOption: SingleValue<Option> | MultiValue<Option>): void => {
         // nav to the url of the selected option
-        if (currentOption && 'url' in currentOption) {
-            navigate(currentOption.url);
+        try {
+            if (currentOption
+                && 'url' in currentOption
+                && currentOption.url !== undefined) {
+                navigate(currentOption.url);
+            } else {
+                throw new Error('Error on navigate.');
+            }
+        } catch (error: unknown) {
+            if (error instanceof Error) {
+                toast.error('Error on navigate.');
+                console.error(error);
+            } else {
+                toast.error('Uknown error occurred');
+                console.error(error);
+            }
         }
     };
 
@@ -107,20 +95,24 @@ function SearchBar() {
             if (!response.ok) {
                 throw new Error(`Error: ${response.statusText}`);
             }
-
             const data = await response.json();
             setSearchResults(data);
-
             return data;
-        } catch (error) {
-            console.error('Error fetching game data:', error);
-            toast.error('Failed to fetch game data.');
+        } catch (error: unknown) {
+            if (error instanceof Error) {
+                toast.error('Failed to fetch game data.');
+                console.error(error);
+            } else {
+                toast.error('Uknown error occurred.');
+                console.error(error);
+            }
             return searchResults;
         }
     };
 
     // convert debounced game data into AsyncSelect options
-    // useRef to ensure debounce timer does not reset each time inputString is updated and the component re-rendered
+    // use useRef to ensure debounce timer does not reset each time 
+    // the inputString is updated and the component re-rendered
     const debouncedFetchGameData = useRef(
         debounce(async (inputString: string, callback: (options: Options) => void): Promise<void> => {
             try {
@@ -128,30 +120,32 @@ function SearchBar() {
                     callback([]); // clear options
                     return; // prevent API call
                 }
-
+                
                 const searchResults = await fetchGameData(inputString);
                 if (!searchResults) {
                     throw new Error('Error returning game data.');
                 }
 
-                // map search results to options
-                const searchOptions: Options = searchResults.results.map((result) => ({
-                    ...result,
-                    isDivider: true,
-                    label: result.name,
-                    url: `/game/${result.id}`
-                }));
+                let searchOptions: Options;
+                if ('results' in searchResults
+                    && searchResults.results !== undefined) {
+                    // map returned search results to options
+                    searchOptions = searchResults.results.map((result) => ({
+                        ...result,
+                        isDivider: true,
+                        label: result.name,
+                        url: `/game/${result.id}`
+                    }));
 
-                // Add "Show more results" to the options
-                searchOptions.push({
-                    ...initSearchResults.results[0],
-                    isDivider: false,
-                    label: "Show more results...",
-                    url: `/search?q=${encodeURIComponent(inputString)}`
-                });
-
-                setOptions(searchOptions);
-                callback(searchOptions);
+                    // Add "Show more results" to options list
+                    searchOptions.push({
+                        isDivider: false,
+                        label: "Show more results...",
+                        url: `/search?q=${encodeURIComponent(inputString)}`
+                    });
+                    setOptions(searchOptions);
+                    callback(searchOptions);
+                }
             } catch (error) {
                 console.error('Error displaying results:', error);
                 toast.error('Failed to display results.');
@@ -184,14 +178,16 @@ function SearchBar() {
         return (
             <>
                 <div className="d-flex" ref={innerRef} {...innerProps} style={{ ...optionStyles }}>
-                    {data.image.tiny_url ? (
+                    {data.image
+                        && data.url
+                        && data.image.tiny_url ? (
                         <>
                             <img src={data.image.tiny_url} alt={data.label} className="me-2" />
                             <div>
                                 <Link to={data.url} style={{ textDecoration: 'none', color: 'inherit' }}>{data.label}</Link> - {formattedDate!}
                             </div>
                         </>
-                    ) : (
+                    ) : data.url && (
                         <div>
                             <Link to={data.url} style={{ textDecoration: 'none', color: 'inherit' }}>{data.label}</Link>
                         </div>
