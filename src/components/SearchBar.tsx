@@ -11,9 +11,16 @@ import { Link, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import AsyncSelect from 'react-select/async';
 import debounce from 'lodash.debounce';
-import type { Option } from '../types/OptionType';
-import type { Options } from '../types/OptionsType';
+import type { SearchResult } from '../types/SearchResultType';
 import type { SearchResults } from '../types/SearchResultsType';
+
+interface Option extends SearchResult {
+    isDivider?: boolean, // used for custom react-select styling
+    label?: string,
+    url?: string
+}
+
+type Options = Option[];
 
 function SearchBar() {
     const navigate = useNavigate();
