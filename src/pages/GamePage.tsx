@@ -7,7 +7,7 @@ import { useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { useSelector } from "react-redux";
 import Loader from "../components/Loader";
-import type { SearchResult } from "../types/SearchResultType";
+import type { SearchResult } from "../types/DataTypes";
 
 type Status = {
   playing: number,

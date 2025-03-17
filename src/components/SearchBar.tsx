@@ -11,8 +11,8 @@ import { Link, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import AsyncSelect from 'react-select/async';
 import debounce from 'lodash.debounce';
-import type { SearchResult } from '../types/SearchResultType';
-import type { SearchResults } from '../types/SearchResultsType';
+import type { SearchResult } from '../types/DataTypes';
+import type { SearchResults } from '../types/DataTypes';
 
 interface Option extends SearchResult {
     isDivider?: boolean, // used for custom react-select styling
