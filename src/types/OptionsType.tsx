@@ -1,5 +1,3 @@
-import type Option from "./OptionType";
+import type { Option } from "./OptionType";
 
-type Options = Option[];
-
-export default Options;
+export type Options = Option[];
