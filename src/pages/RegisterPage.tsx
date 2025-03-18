@@ -10,13 +10,13 @@ import Button from 'react-bootstrap/esm/Button';
 import Card from 'react-bootstrap/esm/Card';
 import Form from 'react-bootstrap/esm/Form';
 import Loader from '../components/Loader';
-import type UserType from '../types/UserType';
+import type { User } from '../types/AuthTypes';
 
 function RegisterPage() {
     const navigate = useNavigate();
     const dispatch = useDispatch();
 
-    const [register, {isLoading}] = useRegisterMutation();
+    const [register, { isLoading }] = useRegisterMutation();
 
     const { userInfo } = useSelector((state: RootState) => state.auth);
 
@@ -49,13 +49,13 @@ function RegisterPage() {
         setPwd(evt.target.value);
         setPwdTouched(true);
     };
-    
+
     const handleConfirmPwdInputChange = (evt: ChangeEvent<HTMLInputElement>) => {
         setConfirmPwd(evt.target.value);
         setConfirmPwdTouched(true);
     }
 
-    const formData: UserType = {
+    const formData: User = {
         username: un,
         email: mail,
         password: pwd
@@ -69,7 +69,7 @@ function RegisterPage() {
         } else {
             try {
                 const response = await register(formData).unwrap();
-                dispatch(setCredentials({...response}));
+                dispatch(setCredentials({ ...response }));
                 navigate('/');
             } catch (error: any) {
                 toast.error(error.data.message || "An error occurred.");

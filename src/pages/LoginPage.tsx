@@ -10,7 +10,7 @@ import Button from 'react-bootstrap/esm/Button';
 import Card from 'react-bootstrap/esm/Card';
 import Form from 'react-bootstrap/esm/Form';
 import Loader from '../components/Loader';
-import type UserType from '../types/UserType';
+import type { User } from '../types/AuthTypes';
 
 function LoginPage() {
     const navigate = useNavigate();
@@ -50,7 +50,7 @@ function LoginPage() {
         credential = {username: cred};
     }
 
-    const formData: UserType = {
+    const formData: User = {
         ...credential,
         password: pwd
     }

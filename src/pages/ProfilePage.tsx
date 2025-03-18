@@ -11,7 +11,7 @@ import Card from 'react-bootstrap/esm/Card';
 import Form from 'react-bootstrap/esm/Form';
 import Modal from 'react-bootstrap/Modal';
 import Loader from '../components/Loader';
-import type UserType from '../types/UserType';
+import type { User } from '../types/AuthTypes';
 
 function ProfilePage() {
     const [un, setUn] = useState('');
@@ -25,10 +25,10 @@ function ProfilePage() {
     const navigate = useNavigate();
     const dispatch = useDispatch();
 
-    const [updateUser, {isLoading}] = useUpdateUserMutation();
+    const [updateUser, { isLoading }] = useUpdateUserMutation();
     const [deleteUser] = useDeleteUserMutation();
 
-    const {userInfo} = useSelector((state: RootState) => state.auth);
+    const { userInfo } = useSelector((state: RootState) => state.auth);
 
     useEffect(() => {
         setUn(userInfo.username);
@@ -48,7 +48,7 @@ function ProfilePage() {
     const handleCloseModal = () => setShowModal(false);
     const handleShowModal = () => setShowModal(true);
 
-    const formData: UserType = {
+    const formData: User = {
         userId: userInfo.userId,
         username: un,
         email: mail,
@@ -135,24 +135,24 @@ function ProfilePage() {
 
                         <Container className="m-0 p-0 row-cols-2">
                             <div className="d-inline-flex justify-content-start">
-                                <Button 
-                                    variant="primary" 
+                                <Button
+                                    variant="primary"
                                     type="submit"
                                     disabled={isLoading}
                                     style={{ height: '38px', width: '75px' }}>
-                                        {isLoading ? <Loader /> : 'Save'}
+                                    {isLoading ? <Loader /> : 'Save'}
                                 </Button>
                             </div>
 
                             <div className="d-inline-flex justify-content-end">
-                                <Button 
-                                    variant="outline-danger" 
+                                <Button
+                                    variant="outline-danger"
                                     type="button"
                                     style={{ height: '38px', width: '75px' }}
                                     onClick={handleShowModal}>
-                                        Delete
+                                    Delete
                                 </Button>
-                                </div>
+                            </div>
                         </Container>
 
                     </Form>
