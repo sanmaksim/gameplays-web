@@ -5,8 +5,8 @@ import { useQuery } from "@tanstack/react-query";
 import { useSearchMutation } from "../slices/gamesApiSlice";
 import Loader from "../components/Loader";
 import Paginator from "../components/Paginator";
-import type SearchResult from "../types/SearchResultType";
-import type SearchResults from "../types/SearchResultsType";
+import type { SearchResult } from "../types/DataTypes";
+import type { SearchResults } from "../types/DataTypes";
 
 function SearchPage() {
     const [search] = useSearchMutation();
@@ -54,9 +54,9 @@ function SearchPage() {
                 {error && <p>Error: {error.message}</p>}
                 {data && (
                     <ListGroup>
-                        {data.results.map((result: SearchResult) => (
+                        {data.results && data.results.map((result: SearchResult) => (
                             <ListGroup.Item key={result.id} className="d-flex">
-                                <img src={result.image.icon_url} alt={result.name} className="me-2" />
+                                <img src={result.image && result.image.icon_url} alt={result.name} className="me-2" />
                                 <div>
                                     <h6><strong><Link to={`/game/${result.id}`}>{result.name}</Link></strong></h6>
                                     <p>{result.deck}</p>
