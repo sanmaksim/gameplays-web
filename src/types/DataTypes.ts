@@ -20,8 +20,8 @@ export interface SearchResult {
         super_url?: string,
         thumb_url?: string,
         tiny_url?: string,
-        original?: string,
-        tags?: string
+        original_url?: string,
+        image_tags?: string
     },
     original_release_date?: string,
     platforms?: [
