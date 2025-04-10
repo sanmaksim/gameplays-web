@@ -124,6 +124,13 @@ function GamePage() {
               ))}
               <Card.Text></Card.Text>
               <Card.Title>
+                {data.franchises && data.franchises.length > 1 ? (<>Franchises</>) : (<>Franchise</>)}
+              </Card.Title>
+              {data.franchises && data.franchises.map((franchise: { name?: string }) => (
+                <li key={franchise.name} style={{ listStyle: 'none' }}>{franchise.name}</li>
+              ))}
+              <Card.Text></Card.Text>
+              <Card.Title>
                 {data.platforms && data.platforms.length > 1 ? (<>Platforms</>) : (<>Platform</>)}
               </Card.Title>
               {data.platforms && data.platforms.map((platform) => (
