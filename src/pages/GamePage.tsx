@@ -109,7 +109,9 @@ function GamePage() {
                 <li key={developer.name} style={{ listStyle: 'none' }}>{developer.name}</li>
               ))}
               <Card.Text></Card.Text>
-              <Card.Title>Platforms</Card.Title>
+              <Card.Title>
+                {data.platforms && data.platforms.length > 1 ? (<>Platforms</>) : (<>Platform</>)}
+              </Card.Title>
               {data.platforms && data.platforms.map((platform) => (
                 <li key={platform.name} style={{ listStyle: 'none' }}>{platform.name}</li>
               ))}
