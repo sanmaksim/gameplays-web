@@ -117,6 +117,13 @@ function GamePage() {
               ))}
               <Card.Text></Card.Text>
               <Card.Title>
+                {data.genres && data.genres.length > 1 ? (<>Genres</>) : (<>Genre</>)}
+              </Card.Title>
+              {data.genres && data.genres.map((genre: { name?: string }) => (
+                <li key={genre.name} style={{ listStyle: 'none' }}>{genre.name}</li>
+              ))}
+              <Card.Text></Card.Text>
+              <Card.Title>
                 {data.platforms && data.platforms.length > 1 ? (<>Platforms</>) : (<>Platform</>)}
               </Card.Title>
               {data.platforms && data.platforms.map((platform) => (
