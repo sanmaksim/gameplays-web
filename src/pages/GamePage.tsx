@@ -110,6 +110,13 @@ function GamePage() {
               ))}
               <Card.Text></Card.Text>
               <Card.Title>
+                {data.publishers && data.publishers.length > 1 ? (<>Publishers</>) : (<>Publisher</>)}
+              </Card.Title>
+              {data.publishers && data.publishers.map((publisher: { name?: string }) => (
+                <li key={publisher.name} style={{ listStyle: 'none' }}>{publisher.name}</li>
+              ))}
+              <Card.Text></Card.Text>
+              <Card.Title>
                 {data.platforms && data.platforms.length > 1 ? (<>Platforms</>) : (<>Platform</>)}
               </Card.Title>
               {data.platforms && data.platforms.map((platform) => (
