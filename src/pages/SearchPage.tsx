@@ -5,8 +5,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useSearchMutation } from "../slices/gamesApiSlice";
 import Loader from "../components/Loader";
 import Paginator from "../components/Paginator";
-import type { SearchResult } from "../types/DataTypes";
-import type { SearchResults } from "../types/DataTypes";
+import type { SearchResult, SearchResults } from "../types/DataTypes";
 
 function SearchPage() {
     const [search] = useSearchMutation();
