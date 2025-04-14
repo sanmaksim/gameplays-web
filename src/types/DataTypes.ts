@@ -4,13 +4,22 @@ export interface SearchResult {
     deck?: string,
     description?: string,
     developers?: [
-        { name?: string }
+        {
+            id?: number,
+            name?: string
+        }
     ],
     franchises?: [
-        { name?: string }
+        {
+            id?: number,
+            name?: string
+        }
     ],
     genres?: [
-        { name?: string }
+        {
+            id?: number,
+            name?: string
+        }
     ],
     image?: {
         icon_url?: string,
@@ -25,10 +34,16 @@ export interface SearchResult {
     },
     original_release_date?: string,
     platforms?: [
-        { name?: string }
+        {
+            id?: number,
+            name?: string
+        }
     ],
     publishers?: [
-        { name?: string }
+        {
+            id?: number,
+            name?: string
+        }
     ]
 }
 
