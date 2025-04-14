@@ -1,4 +1,5 @@
 import { Card, Container } from "react-bootstrap";
+import { Fragment } from "react/jsx-runtime";
 import { RootState } from "../store";
 import { toast } from "react-toastify";
 import { useAddPlayMutation } from "../slices/playsApiSlice";
@@ -90,6 +91,16 @@ function GamePage() {
     formattedDate = new Intl.DateTimeFormat('en-US', { month: 'short', day: '2-digit', year: 'numeric' }).format(new Date(date));
   }
 
+  // a list of game info headings that correspond 
+  // to Game related entities on the server
+  const gameEntities = [
+    { heading: "Developer", content: data?.developers },
+    { heading: "Franchise", content: data?.franchises },
+    { heading: "Genre", content: data?.genres },
+    { heading: "Platform", content: data?.platforms },
+    { heading: "Publisher", content: data?.publishers }
+  ]
+
   return (
     <Container className="mt-4">
       {isLoading && <Loader />}
@@ -99,43 +110,28 @@ function GamePage() {
           <Card.Body className="d-flex">
             {data.image && <img src={data.image.small_url} alt={data.name} />}
             <div className="d-flex flex-column mx-2">
+
+              {/* Game info */}
               <Card.Title>{data.name}</Card.Title>
               <Card.Subtitle className="mb-2 text-muted">Release Date: {formattedDate!}</Card.Subtitle>
               <Card.Text>{data.deck}</Card.Text>
-              <Card.Title>
-                {data.developers && data.developers.length > 1 ? (<>Developers</>) : (<>Developer</>)}
-              </Card.Title>
-              {data.developers && data.developers.map((developer: { name?: string }) => (
-                <li key={developer.name} style={{ listStyle: 'none' }}>{developer.name}</li>
+              
+              {/* Game details */}
+              {gameEntities.map((gameEntity, index) => (
+                <Fragment key={index}>
+                  <Card.Title>
+                    {gameEntity.content && gameEntity.content.length > 1 ? (<>{gameEntity.heading + "s"}</>) : (<>{gameEntity.heading}</>)}
+                  </Card.Title>
+                  {gameEntity.content && gameEntity.content.map(entity => (
+                    <li key={entity.id} style={{ listStyle: 'none' }}>
+                      {entity.name}
+                    </li>
+                  ))}
+                  <Card.Text></Card.Text>
+                </Fragment>
               ))}
-              <Card.Text></Card.Text>
-              <Card.Title>
-                {data.publishers && data.publishers.length > 1 ? (<>Publishers</>) : (<>Publisher</>)}
-              </Card.Title>
-              {data.publishers && data.publishers.map((publisher: { name?: string }) => (
-                <li key={publisher.name} style={{ listStyle: 'none' }}>{publisher.name}</li>
-              ))}
-              <Card.Text></Card.Text>
-              <Card.Title>
-                {data.genres && data.genres.length > 1 ? (<>Genres</>) : (<>Genre</>)}
-              </Card.Title>
-              {data.genres && data.genres.map((genre: { name?: string }) => (
-                <li key={genre.name} style={{ listStyle: 'none' }}>{genre.name}</li>
-              ))}
-              <Card.Text></Card.Text>
-              <Card.Title>
-                {data.franchises && data.franchises.length > 1 ? (<>Franchises</>) : (<>Franchise</>)}
-              </Card.Title>
-              {data.franchises && data.franchises.map((franchise: { name?: string }) => (
-                <li key={franchise.name} style={{ listStyle: 'none' }}>{franchise.name}</li>
-              ))}
-              <Card.Text></Card.Text>
-              <Card.Title>
-                {data.platforms && data.platforms.length > 1 ? (<>Platforms</>) : (<>Platform</>)}
-              </Card.Title>
-              {data.platforms && data.platforms.map((platform) => (
-                <li key={platform.name} style={{ listStyle: 'none' }}>{platform.name}</li>
-              ))}
+
+              {/* User list control */}
               {userInfo ? (
                 <div className="mt-auto">
                   Add to:
