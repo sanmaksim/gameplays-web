@@ -48,7 +48,7 @@ function NavBar() {
     
         // cleanup event listener on component unmount
         return () => window.removeEventListener('resize', handleResize);
-      }, []);
+    }, []);
 
 
     const handleLogout = async () => {
