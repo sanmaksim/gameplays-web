@@ -1,6 +1,7 @@
 export interface SearchResult {
     id?: number,
     name?: string,
+    date_last_updated?: string,
     deck?: string,
     description?: string,
     developers?: [
