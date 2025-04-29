@@ -1,4 +1,4 @@
-import { Card, Container } from "react-bootstrap";
+import { ButtonGroup, Card, Container, Dropdown, DropdownButton } from "react-bootstrap";
 import { Fragment } from "react/jsx-runtime";
 import { RootState } from "../store";
 import { toast } from "react-toastify";
@@ -133,13 +133,14 @@ function GamePage() {
 
               {/* User list control */}
               {userInfo ? (
-                <div className="mt-auto">
-                  Add to:
-                  <button onClick={() => createPlay(status.playing)}>Playing</button> |
-                  <button onClick={() => createPlay(status.played)}>Played</button> |
-                  <button onClick={() => createPlay(status.wishlist)}>Wishlist</button> |
-                  <button onClick={() => createPlay(status.backlog)}>Backlog</button>
-                </div>
+                <ButtonGroup>
+                  <DropdownButton as={ButtonGroup} title="Add to list " id="bg-nested-dropdown">
+                    <Dropdown.Item eventKey="1" onClick={() => createPlay(status.playing)}>Playing</Dropdown.Item>
+                    <Dropdown.Item eventKey="2" onClick={() => createPlay(status.played)}>Played</Dropdown.Item>
+                    <Dropdown.Item eventKey="3" onClick={() => createPlay(status.wishlist)}>Wishlist</Dropdown.Item>
+                    <Dropdown.Item eventKey="4" onClick={() => createPlay(status.backlog)}>Backlog</Dropdown.Item>
+                  </DropdownButton>
+                </ButtonGroup>
               ) : (
                 <></>
               )}
