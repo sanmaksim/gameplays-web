@@ -10,6 +10,8 @@ function PageProvider({children}: Props) {
     const [ isLoginPage, setIsLoginPage ] = useState(false);
     const [ isRegisterPage, setIsRegisterPage ] = useState(false);
 
+    const [ paths, setPaths ] = useState({currPath: "", prevPath: ""});
+
     const location = useLocation();
 
     useEffect(() => {
@@ -23,11 +25,17 @@ function PageProvider({children}: Props) {
             setIsLoginPage(false);
             setIsRegisterPage(false);
         }
+        setPaths((prev) => ({
+            prevPath: prev.currPath,
+            currPath: location.pathname,
+        }));
     }, [location.pathname]);
 
     const pageContext = {
         isLoginPageContext: isLoginPage,
-        isRegisterPageContext: isRegisterPage
+        isRegisterPageContext: isRegisterPage,
+        currentPath: paths.currPath,
+        previousPath: paths.prevPath
     }
 
     return (

@@ -1,5 +1,6 @@
-import { ChangeEvent, FormEvent, useEffect, useState } from 'react';
+import { ChangeEvent, FormEvent, useContext, useEffect, useState } from 'react';
 import { Container } from 'react-bootstrap';
+import { PageContext } from '../contexts/PageContext';
 import { RootState } from '../store';
 import { setCredentials } from '../slices/authSlice';
 import { toast } from 'react-toastify';
@@ -13,6 +14,9 @@ import Loader from '../components/Loader';
 import type { User } from '../types/AuthTypes';
 
 function LoginPage() {
+    // get the prev path from the page context for post login redirect
+    const { previousPath } = useContext(PageContext);
+    
     const navigate = useNavigate();
     const dispatch = useDispatch();
 
@@ -20,9 +24,15 @@ function LoginPage() {
 
     const {userInfo} = useSelector((state: RootState) => state.auth);
 
+    // direct the user to the previous path if there is one
+    // otherwise go back to the start page
     useEffect(() => {
         if (userInfo) {
-            navigate('/');
+            if (previousPath) {
+                navigate(previousPath);
+            } else {
+                navigate('/');
+            }
         }
     }, [navigate, userInfo]);
 
@@ -61,7 +71,7 @@ function LoginPage() {
         try {
             const response = await login(formData).unwrap();
             dispatch(setCredentials({...response}));
-            navigate('/');
+            navigate(previousPath);
         } catch (error: any) {
             toast.error(error.data.message || "An error occurred.");
         }
