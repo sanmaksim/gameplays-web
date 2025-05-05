@@ -64,7 +64,7 @@ function GamePage() {
 
   const createPlay = async (playStatus: number): Promise<void> => {
     const formData: FormData = {
-      userId: userInfo.userId,
+      userId: userInfo.id,
       gameId: gameId!,
       status: playStatus
     };
