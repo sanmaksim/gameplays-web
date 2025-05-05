@@ -6,12 +6,10 @@ type Props = {
     children: ReactNode
 }
 
-function PageProvider({children}: Props) {
-    const [ isLoginPage, setIsLoginPage ] = useState(false);
-    const [ isRegisterPage, setIsRegisterPage ] = useState(false);
-
-    const [ paths, setPaths ] = useState({currPath: "", prevPath: ""});
-
+function PageProvider({ children }: Props) {
+    const [isLoginPage, setIsLoginPage] = useState(false);
+    const [isRegisterPage, setIsRegisterPage] = useState(false);
+    const [paths, setPaths] = useState({ currPath: "", prevPath: "" });
     const location = useLocation();
 
     useEffect(() => {
