@@ -49,7 +49,7 @@ function ProfilePage() {
     const handleShowModal = () => setShowModal(true);
 
     const formData: User = {
-        userId: userInfo.userId,
+        userId: userInfo.id,
         username: un,
         email: mail,
         password: pwd
