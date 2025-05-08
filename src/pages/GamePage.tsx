@@ -1,4 +1,4 @@
-import { ButtonGroup, Card, Container, Dropdown, DropdownButton } from "react-bootstrap";
+import { Card, Container, ToggleButton, ToggleButtonGroup } from "react-bootstrap";
 import { Fragment } from "react/jsx-runtime";
 import { RootState } from "../store";
 import { toast } from "react-toastify";
@@ -7,6 +7,7 @@ import { useGetGameMutation } from "../slices/gamesApiSlice";
 import { useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { useSelector } from "react-redux";
+import { useState } from "react";
 import Loader from "../components/Loader";
 import type { SearchResult } from "../types/DataTypes";
 
@@ -35,6 +36,15 @@ function GamePage() {
     wishlist: 2,
     backlog: 3
   };
+
+  const [value, setValue] = useState([
+    status.playing,
+    status.played,
+    status.wishlist,
+    status.backlog
+  ]);
+
+  const toggleButton = (val: number[]) => setValue(val);
 
   const fetchGameData = async (id: string = ''): Promise<SearchResult> => {
     try {
@@ -133,14 +143,12 @@ function GamePage() {
 
               {/* User list control */}
               {userInfo ? (
-                <ButtonGroup>
-                  <DropdownButton as={ButtonGroup} title="Add to list " id="bg-nested-dropdown">
-                    <Dropdown.Item eventKey="1" onClick={() => createPlay(status.playing)}>Playing</Dropdown.Item>
-                    <Dropdown.Item eventKey="2" onClick={() => createPlay(status.played)}>Played</Dropdown.Item>
-                    <Dropdown.Item eventKey="3" onClick={() => createPlay(status.wishlist)}>Wishlist</Dropdown.Item>
-                    <Dropdown.Item eventKey="4" onClick={() => createPlay(status.backlog)}>Backlog</Dropdown.Item>
-                  </DropdownButton>
-                </ButtonGroup>
+                <ToggleButtonGroup type="checkbox" value={value} onChange={toggleButton}>
+                  <ToggleButton id="btn-playing" value={status.playing} onClick={() => {}}>Playing</ToggleButton>
+                  <ToggleButton id="btn-played" value={status.played}>Played</ToggleButton>
+                  <ToggleButton id="btn-wishlist" value={status.wishlist}>Wishlist</ToggleButton>
+                  <ToggleButton id="btn-backlog" value={status.backlog}>Backlog</ToggleButton>
+                </ToggleButtonGroup>
               ) : (
                 <></>
               )}
