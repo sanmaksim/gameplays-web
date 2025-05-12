@@ -2,7 +2,7 @@ import { Card, Container, ToggleButton, ToggleButtonGroup } from "react-bootstra
 import { Fragment } from "react/jsx-runtime";
 import { RootState } from "../store";
 import { toast } from "react-toastify";
-import { useAddPlayMutation } from "../slices/playsApiSlice";
+import { useAddPlayMutation, useGetPlayMutation } from "../slices/playsApiSlice";
 import { useGetGameMutation } from "../slices/gamesApiSlice";
 import { useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
@@ -28,6 +28,7 @@ function GamePage() {
   const { userInfo } = useSelector((state: RootState) => state.auth);
   const [getGame] = useGetGameMutation();
   const [addPlay] = useAddPlayMutation();
+  const [getPlay] = useGetPlayMutation();
   const { gameId } = useParams();
 
   const status: Status = {
@@ -36,15 +37,6 @@ function GamePage() {
     wishlist: 2,
     backlog: 3
   };
-
-  const [value, setValue] = useState([
-    status.playing,
-    status.played,
-    status.wishlist,
-    status.backlog
-  ]);
-
-  const toggleButton = (val: number[]) => setValue(val);
 
   const fetchGameData = async (id: string = ''): Promise<SearchResult> => {
     try {
@@ -67,10 +59,42 @@ function GamePage() {
     }
   };
 
-  const { data, isLoading, error } = useQuery({
+  const gameQuery = useQuery({
     queryKey: ['game', gameId],
     queryFn: () => fetchGameData(gameId)
   })
+
+  const fetchPlayData = async (id: string = ''): Promise<Array<number>> => {
+    try {
+      const response = await getPlay(id).unwrap();
+      if (!response) {
+        throw new Error('Error returning play info.');
+      }
+      setValue(response);
+      console.log(response);
+      return response;
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        toast.error('Failed to fetch play data.');
+        console.error(error);
+      } else {
+        toast.error('Unknown error occurred.');
+        console.error(error);
+      }
+      return [];
+    }
+  };
+
+  //const { data, isLoading, error } = useQuery({
+  const playQuery = useQuery({
+    queryKey: ['play', gameId],
+    queryFn: () => fetchPlayData(gameId)
+  });
+
+  // play button toggle control
+  const [value, setValue] = useState<number[]>([]);
+
+  const toggleButton = (val: number[]) => setValue(val);
 
   const createPlay = async (playStatus: number): Promise<void> => {
     const formData: FormData = {
@@ -95,8 +119,8 @@ function GamePage() {
   };
 
   let formattedDate: string;
-  if (data && data.original_release_date) {
-    const dateString: string = data.original_release_date;
+  if (gameQuery.data && gameQuery.data.original_release_date) {
+    const dateString: string = gameQuery.data.original_release_date;
     const date: Date = new Date(dateString);
     formattedDate = new Intl.DateTimeFormat('en-US', { month: 'short', day: '2-digit', year: 'numeric' }).format(new Date(date));
   }
@@ -104,28 +128,28 @@ function GamePage() {
   // a list of game info headings that correspond 
   // to Game related entities on the server
   const gameEntities = [
-    { heading: "Developer", content: data?.developers },
-    { heading: "Franchise", content: data?.franchises },
-    { heading: "Genre", content: data?.genres },
-    { heading: "Platform", content: data?.platforms },
-    { heading: "Publisher", content: data?.publishers }
+    { heading: "Developer", content: gameQuery.data?.developers },
+    { heading: "Franchise", content: gameQuery.data?.franchises },
+    { heading: "Genre", content: gameQuery.data?.genres },
+    { heading: "Platform", content: gameQuery.data?.platforms },
+    { heading: "Publisher", content: gameQuery.data?.publishers }
   ]
 
   return (
     <Container className="mt-4">
-      {isLoading && <Loader />}
-      {error && <p>Error: {error.message}</p>}
-      {data && (
+      {gameQuery.isLoading && <Loader />}
+      {gameQuery.error && <p>Error: {gameQuery.error.message}</p>}
+      {gameQuery.data && (
         <Card className="my-2">
           <Card.Body className="d-flex">
-            {data.image && <img src={data.image.small_url} alt={data.name} />}
+            {gameQuery.data.image && <img src={gameQuery.data.image.small_url} alt={gameQuery.data.name} />}
             <div className="d-flex flex-column mx-2">
 
               {/* Game info */}
-              <Card.Title>{data.name}</Card.Title>
+              <Card.Title>{gameQuery.data.name}</Card.Title>
               <Card.Subtitle className="mb-2 text-muted">Release Date: {formattedDate!}</Card.Subtitle>
-              <Card.Text>{data.deck}</Card.Text>
-              
+              <Card.Text>{gameQuery.data.deck}</Card.Text>
+
               {/* Game details */}
               {gameEntities.map((gameEntity, index) => (
                 <Fragment key={index}>
@@ -146,8 +170,8 @@ function GamePage() {
                 <ToggleButtonGroup type="checkbox" value={value} onChange={toggleButton}>
                   <ToggleButton id="btn-playing" value={status.playing} onClick={() => createPlay(status.playing)}>Playing</ToggleButton>
                   <ToggleButton id="btn-played" value={status.played} onClick={() => createPlay(status.played)}>Played</ToggleButton>
-                  <ToggleButton id="btn-wishlist" value={status.wishlist} onClick={() => {createPlay(status.wishlist)}}>Wishlist</ToggleButton>
-                  <ToggleButton id="btn-backlog" value={status.backlog} onClick={() => {createPlay(status.backlog)}}>Backlog</ToggleButton>
+                  <ToggleButton id="btn-wishlist" value={status.wishlist} onClick={() => createPlay(status.wishlist)}>Wishlist</ToggleButton>
+                  <ToggleButton id="btn-backlog" value={status.backlog} onClick={() => createPlay(status.backlog)}>Backlog</ToggleButton>
                 </ToggleButtonGroup>
               ) : (
                 <></>
