@@ -144,10 +144,10 @@ function GamePage() {
               {/* User list control */}
               {userInfo ? (
                 <ToggleButtonGroup type="checkbox" value={value} onChange={toggleButton}>
-                  <ToggleButton id="btn-playing" value={status.playing} onClick={() => {}}>Playing</ToggleButton>
-                  <ToggleButton id="btn-played" value={status.played}>Played</ToggleButton>
-                  <ToggleButton id="btn-wishlist" value={status.wishlist}>Wishlist</ToggleButton>
-                  <ToggleButton id="btn-backlog" value={status.backlog}>Backlog</ToggleButton>
+                  <ToggleButton id="btn-playing" value={status.playing} onClick={() => createPlay(status.playing)}>Playing</ToggleButton>
+                  <ToggleButton id="btn-played" value={status.played} onClick={() => createPlay(status.played)}>Played</ToggleButton>
+                  <ToggleButton id="btn-wishlist" value={status.wishlist} onClick={() => {createPlay(status.wishlist)}}>Wishlist</ToggleButton>
+                  <ToggleButton id="btn-backlog" value={status.backlog} onClick={() => {createPlay(status.backlog)}}>Backlog</ToggleButton>
                 </ToggleButtonGroup>
               ) : (
                 <></>
