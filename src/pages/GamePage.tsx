@@ -7,7 +7,7 @@ import { useGetGameMutation } from "../slices/gamesApiSlice";
 import { useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { useSelector } from "react-redux";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Loader from "../components/Loader";
 import type { SearchResult } from "../types/DataTypes";
 
@@ -70,8 +70,6 @@ function GamePage() {
       if (!response) {
         throw new Error('Error returning play info.');
       }
-      setValue(response);
-      console.log(response);
       return response;
     } catch (error: unknown) {
       if (error instanceof Error) {
@@ -85,12 +83,15 @@ function GamePage() {
     }
   };
 
-  //const { data, isLoading, error } = useQuery({
   const playQuery = useQuery({
     queryKey: ['play', gameId],
     queryFn: () => fetchPlayData(gameId),
     enabled: !!userInfo
   });
+
+  useEffect(() => {
+    if (playQuery.data) setValue(playQuery.data);
+  }, [playQuery.data]);
 
   // play button toggle control
   const [value, setValue] = useState<number[]>([]);
