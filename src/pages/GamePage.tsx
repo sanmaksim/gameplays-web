@@ -88,7 +88,8 @@ function GamePage() {
   //const { data, isLoading, error } = useQuery({
   const playQuery = useQuery({
     queryKey: ['play', gameId],
-    queryFn: () => fetchPlayData(gameId)
+    queryFn: () => fetchPlayData(gameId),
+    enabled: !!userInfo
   });
 
   // play button toggle control
