@@ -2,7 +2,7 @@ import { Card, Container, ToggleButton, ToggleButtonGroup } from "react-bootstra
 import { Fragment } from "react/jsx-runtime";
 import { RootState } from "../store";
 import { toast } from "react-toastify";
-import { useAddPlayMutation, useGetPlayMutation } from "../slices/playsApiSlice";
+import { useAddPlayMutation, useDeletePlayMutation, useGetPlayMutation } from "../slices/playsApiSlice";
 import { useGetGameMutation } from "../slices/gamesApiSlice";
 import { useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
@@ -16,20 +16,30 @@ type Status = {
   played: number,
   wishlist: number,
   backlog: number
-};
+}
 
 type FormData = {
   userId: number,
   gameId: string,
   status: number
-};
+}
+
+type StatusItem = {
+  playId?: number,
+  status?: number
+}
 
 function GamePage() {
   const { userInfo } = useSelector((state: RootState) => state.auth);
+  const { gameId } = useParams();
+
   const [getGame] = useGetGameMutation();
   const [addPlay] = useAddPlayMutation();
+  const [deletePlay] = useDeletePlayMutation();
   const [getPlay] = useGetPlayMutation();
-  const { gameId } = useParams();
+  
+  // play button toggle control
+  const [value, setValue] = useState<number[]>([]);
 
   const status: Status = {
     playing: 0,
@@ -47,14 +57,9 @@ function GamePage() {
       }
       const searchResult: SearchResult = response.results;
       return searchResult;
-    } catch (error: unknown) {
-      if (error instanceof Error) {
-        toast.error('Failed to fetch game data.');
-        console.error(error);
-      } else {
-        toast.error('Unknown error occurred.');
-        console.error(error);
-      }
+    } catch (error) {
+      toast.error('Failed to fetch game data.');
+      console.error(error);
       return {};
     }
   };
@@ -64,21 +69,16 @@ function GamePage() {
     queryFn: () => fetchGameData(gameId)
   })
 
-  const fetchPlayData = async (id: string = ''): Promise<Array<number>> => {
+  const fetchPlayData = async (id: string = ''): Promise<Array<any>> => {
     try {
       const response = await getPlay(id).unwrap();
       if (!response) {
         throw new Error('Error returning play info.');
       }
       return response;
-    } catch (error: unknown) {
-      if (error instanceof Error) {
-        toast.error('Failed to fetch play data.');
-        console.error(error);
-      } else {
-        toast.error('Unknown error occurred.');
-        console.error(error);
-      }
+    } catch (error) {
+      toast.error('Failed to fetch play data.');
+      console.error(error);
       return [];
     }
   };
@@ -90,32 +90,57 @@ function GamePage() {
   });
 
   useEffect(() => {
-    if (playQuery.data) setValue(playQuery.data);
+    // copy returned play status values into local array
+    let statuses: Array<number> = [];
+    if (playQuery.data) {
+      playQuery.data.map((play: StatusItem) => {
+        console.log(play.status);
+        if (play.status !== undefined) statuses.push(play.status);
+      });
+    }
+    // update component state with status array
+    console.log(statuses);
+    if (statuses) setValue(statuses);
   }, [playQuery.data]);
-
-  // play button toggle control
-  const [value, setValue] = useState<number[]>([]);
 
   const toggleButton = (val: number[]) => setValue(val);
 
-  const createPlay = async (playStatus: number): Promise<void> => {
+  const togglePlay = async (playStatus: number, btnGrpArr: number[]): Promise<void> => {
     const formData: FormData = {
       userId: userInfo.id,
       gameId: gameId!,
       status: playStatus
     };
 
-    try {
-      const response = await addPlay(formData).unwrap();
-      if (!response) {
-        throw new Error('Error adding play.');
-      }
-      toast.success(response.message);
-    } catch (error: unknown) {
-      if (error instanceof Error) {
+    // check whether the user has toggled a play
+    const toggle = (status: number, btnGrp: number[]): boolean => {
+      btnGrp.forEach(btn => {
+        if (btn === status) return true;
+      });
+      return false;
+    };
+
+    if (toggle(playStatus, btnGrpArr)) {
+      try {
+        const response = await addPlay(formData).unwrap();
+        if (!response) {
+          throw new Error('Error adding play.');
+        }
+        toast.success(response.message);
+      } catch (error) {
         toast.error("Failed to add play.");
-      } else {
-        toast.error("Uknown error occurred.");
+        console.error(error);
+      }
+    } else {
+      try {
+        const response = await deletePlay(1).unwrap();
+        if (!response) {
+          throw new Error('Error deleting play.');
+        }
+        toast.success(response.message);
+      } catch (error) {
+        toast.error("Failed to delete play.");
+        console.error(error);
       }
     }
   };
@@ -170,10 +195,10 @@ function GamePage() {
               {/* User list control */}
               {userInfo ? (
                 <ToggleButtonGroup type="checkbox" value={value} onChange={toggleButton}>
-                  <ToggleButton id="btn-playing" value={status.playing} onClick={() => createPlay(status.playing)}>Playing</ToggleButton>
-                  <ToggleButton id="btn-played" value={status.played} onClick={() => createPlay(status.played)}>Played</ToggleButton>
-                  <ToggleButton id="btn-wishlist" value={status.wishlist} onClick={() => createPlay(status.wishlist)}>Wishlist</ToggleButton>
-                  <ToggleButton id="btn-backlog" value={status.backlog} onClick={() => createPlay(status.backlog)}>Backlog</ToggleButton>
+                  <ToggleButton id="btn-playing" value={status.playing} onClick={() => togglePlay(status.playing, value)}>Playing</ToggleButton>
+                  <ToggleButton id="btn-played" value={status.played} onClick={() => togglePlay(status.played, value)}>Played</ToggleButton>
+                  <ToggleButton id="btn-wishlist" value={status.wishlist} onClick={() => togglePlay(status.wishlist, value)}>Wishlist</ToggleButton>
+                  <ToggleButton id="btn-backlog" value={status.backlog} onClick={() => togglePlay(status.backlog, value)}>Backlog</ToggleButton>
                 </ToggleButtonGroup>
               ) : (
                 <></>
