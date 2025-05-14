@@ -23,6 +23,15 @@ export const playsApiSlice = apiSlice.injectEndpoints({
                 };
             }
         }),
+        deletePlay: builder.mutation({
+            query: (playId: number) => {
+                return {
+                    url: `${PLAYS_URL}/${playId}`,
+                    method: 'DELETE',
+                    credentials: 'include'
+                }
+            }
+        }),
         getPlay: builder.mutation({
             query: (id: string) => {
                 return {
@@ -35,4 +44,4 @@ export const playsApiSlice = apiSlice.injectEndpoints({
     })
 });
 
-export const { useAddPlayMutation, useGetPlayMutation } = playsApiSlice;
+export const { useAddPlayMutation, useDeletePlayMutation, useGetPlayMutation } = playsApiSlice;
