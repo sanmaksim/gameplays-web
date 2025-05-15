@@ -86,26 +86,26 @@ function GamePage() {
   const playQuery = useQuery({
     queryKey: ['play', gameId],
     queryFn: () => fetchPlayData(gameId),
-    enabled: !!userInfo
+    enabled: !!userInfo // only run when user is logged in
   });
 
   useEffect(() => {
     // copy returned play status values into local array
     let statuses: Array<number> = [];
     if (playQuery.data) {
-      playQuery.data.map((play: StatusItem) => {
-        console.log(play.status);
-        if (play.status !== undefined) statuses.push(play.status);
+      playQuery.data.map((item: StatusItem) => {
+        //console.log("item.status: ", item.status);
+        if (item.status !== undefined) statuses.push(item.status);
       });
     }
     // update component state with status array
-    console.log(statuses);
+    //console.log("statuses", statuses);
     if (statuses) setValue(statuses);
   }, [playQuery.data]);
 
   const toggleButton = (val: number[]) => setValue(val);
 
-  const togglePlay = async (playStatus: number, btnGrpArr: number[]): Promise<void> => {
+  const togglePlay = async (playStatus: number, btnGrpArray: number[]): Promise<void> => {
     const formData: FormData = {
       userId: userInfo.id,
       gameId: gameId!,
@@ -113,14 +113,20 @@ function GamePage() {
     };
 
     // check whether the user has toggled a play
-    const toggle = (status: number, btnGrp: number[]): boolean => {
-      btnGrp.forEach(btn => {
-        if (btn === status) return true;
-      });
-      return false;
+    const toggle = (pStatus: number, btnGrpArr: number[]): boolean => {
+      if (btnGrpArr.length > 0) {
+        btnGrpArr.forEach(btn => {
+          // if a selected button is already in the button group (i.e. currently active)
+          // then toggle it to false so that the play is deleted
+          if (btn === pStatus) return false;
+        });
+      }
+      // otherwise return true since the button is not active
+      // or there are no existing plays in the database
+      return true;
     };
 
-    if (toggle(playStatus, btnGrpArr)) {
+    if (toggle(playStatus, btnGrpArray)) {
       try {
         const response = await addPlay(formData).unwrap();
         if (!response) {
@@ -133,14 +139,29 @@ function GamePage() {
       }
     } else {
       try {
-        const response = await deletePlay(1).unwrap();
-        if (!response) {
-          throw new Error('Error deleting play.');
+        // check which play to remove based on the status
+        let playId: number | undefined;
+        playQuery.data?.forEach((item: StatusItem) => {
+          if (item.status === playStatus) {
+            playId = item.playId;
+          }
+        });
+        if (playId !== undefined) {
+          const response = await deletePlay(playId).unwrap();
+          if (!response) {
+            throw new Error('Error deleting play.');
+          }
+          toast.success(response.message);
+        } else {
+          throw new Error('Error getting playId');
         }
-        toast.success(response.message);
       } catch (error) {
-        toast.error("Failed to delete play.");
-        console.error(error);
+        if (error instanceof Error) {
+          toast.error(error.message);
+        } else {
+          toast.error("Failed to delete play.");
+          console.error(error);
+        }
       }
     }
   };
