@@ -1,7 +1,7 @@
 import { Pagination } from "react-bootstrap";
 import { useMemo } from "react";
 import { useSearchParams } from "react-router-dom";
-import type SearchResults from "../types/SearchResultsType";
+import type { SearchResults } from "../types/DataTypes";
 
 type Props = {
   searchResults: SearchResults;
@@ -11,7 +11,7 @@ function Paginator({ searchResults }: Props) {
   const [searchParams, setSearchParams] = useSearchParams();
   
   const currentPage: number = parseInt(searchParams.get("page") || "1", 10);
-  const totalPages: number = Math.ceil(searchResults.number_of_total_results / searchResults.limit);
+  const totalPages: number = Math.ceil((searchResults.number_of_total_results ?? 0) / (searchResults.limit ?? 1));
 
   const adjacent: number = 2;
   const visible: number = 5;
