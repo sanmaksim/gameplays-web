@@ -114,15 +114,11 @@ function GamePage() {
 
     // check whether the user has toggled a play
     const toggle = (pStatus: number, btnGrpArr: number[]): boolean => {
-      if (btnGrpArr.length > 0) {
-        btnGrpArr.forEach(btn => {
-          // if a selected button is already in the button group (i.e. currently active)
-          // then toggle it to false so that the play is deleted
-          if (btn === pStatus) return false;
-        });
+      // if the play status is already in the array, return false (toggle off)
+      if (btnGrpArr.includes(pStatus)) {
+        return false;
       }
-      // otherwise return true since the button is not active
-      // or there are no existing plays in the database
+      // otherwise return true (toggle on)
       return true;
     };
 
