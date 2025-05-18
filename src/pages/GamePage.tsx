@@ -30,16 +30,25 @@ type StatusItem = {
 }
 
 function GamePage() {
+  // get the logged in user
   const { userInfo } = useSelector((state: RootState) => state.auth);
+
+  // get the current game
   const { gameId } = useParams();
 
+  // playApiSlice mutations
   const [getGame] = useGetGameMutation();
   const [addPlay] = useAddPlayMutation();
   const [deletePlay] = useDeletePlayMutation();
   const [getPlay] = useGetPlayMutation();
   
-  // play button toggle control
-  const [value, setValue] = useState<number[]>([]);
+  // ToggleButtonGroup active state
+  const [buttonGroupValue, setButtonGroupValue] = useState<number[]>([]);
+  const toggleButton = (val: number[]) => setButtonGroupValue(val);
+
+  // playQuery toggle state
+  const [playQueryValue, setPlayQueryValue] = useState(false);
+  const triggerPlayQuery = () => setPlayQueryValue(prev => !prev);
 
   const status: Status = {
     playing: 0,
@@ -94,16 +103,12 @@ function GamePage() {
     let statuses: Array<number> = [];
     if (playQuery.data) {
       playQuery.data.map((item: StatusItem) => {
-        //console.log("item.status: ", item.status);
         if (item.status !== undefined) statuses.push(item.status);
       });
     }
     // update component state with status array
-    //console.log("statuses", statuses);
-    if (statuses) setValue(statuses);
-  }, [playQuery.data]);
-
-  const toggleButton = (val: number[]) => setValue(val);
+    if (statuses) setButtonGroupValue(statuses);
+  }, [playQuery.data, playQueryValue]);
 
   const togglePlay = async (playStatus: number, btnGrpArray: number[]): Promise<void> => {
     const formData: FormData = {
@@ -132,6 +137,8 @@ function GamePage() {
       } catch (error) {
         toast.error("Failed to add play.");
         console.error(error);
+      } finally {
+        triggerPlayQuery;
       }
     } else {
       try {
@@ -158,6 +165,8 @@ function GamePage() {
           toast.error("Failed to delete play.");
           console.error(error);
         }
+      } finally {
+        triggerPlayQuery;
       }
     }
   };
@@ -211,11 +220,11 @@ function GamePage() {
 
               {/* User list control */}
               {userInfo ? (
-                <ToggleButtonGroup type="checkbox" value={value} onChange={toggleButton}>
-                  <ToggleButton id="btn-playing" value={status.playing} onClick={() => togglePlay(status.playing, value)}>Playing</ToggleButton>
-                  <ToggleButton id="btn-played" value={status.played} onClick={() => togglePlay(status.played, value)}>Played</ToggleButton>
-                  <ToggleButton id="btn-wishlist" value={status.wishlist} onClick={() => togglePlay(status.wishlist, value)}>Wishlist</ToggleButton>
-                  <ToggleButton id="btn-backlog" value={status.backlog} onClick={() => togglePlay(status.backlog, value)}>Backlog</ToggleButton>
+                <ToggleButtonGroup type="checkbox" value={buttonGroupValue} onChange={toggleButton}>
+                  <ToggleButton id="btn-playing" value={status.playing} onClick={() => togglePlay(status.playing, buttonGroupValue)}>Playing</ToggleButton>
+                  <ToggleButton id="btn-played" value={status.played} onClick={() => togglePlay(status.played, buttonGroupValue)}>Played</ToggleButton>
+                  <ToggleButton id="btn-wishlist" value={status.wishlist} onClick={() => togglePlay(status.wishlist, buttonGroupValue)}>Wishlist</ToggleButton>
+                  <ToggleButton id="btn-backlog" value={status.backlog} onClick={() => togglePlay(status.backlog, buttonGroupValue)}>Backlog</ToggleButton>
                 </ToggleButtonGroup>
               ) : (
                 <></>
