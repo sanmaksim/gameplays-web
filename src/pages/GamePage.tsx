@@ -2,134 +2,90 @@ import { Card, Container, ToggleButton, ToggleButtonGroup } from "react-bootstra
 import { Fragment } from "react/jsx-runtime";
 import { RootState } from "../store";
 import { toast } from "react-toastify";
-import { useAddPlayMutation, useDeletePlayMutation, useGetPlayMutation } from "../slices/playsApiSlice";
-import { useGetGameMutation } from "../slices/gamesApiSlice";
+import { useAddPlayMutation, useDeletePlayMutation, useGetPlayQuery } from "../slices/playsApiSlice";
+import { useGetGameQuery } from "../slices/gamesApiSlice";
 import { useParams } from "react-router-dom";
-import { useQuery } from "@tanstack/react-query";
 import { useSelector } from "react-redux";
 import { useEffect, useState } from "react";
 import Loader from "../components/Loader";
-import type { SearchResult } from "../types/DataTypes";
-
-type Status = {
-  playing: number,
-  played: number,
-  wishlist: number,
-  backlog: number
-}
-
-type FormData = {
-  userId: number,
-  gameId: string,
-  status: number
-}
-
-type StatusItem = {
-  playId?: number,
-  status?: number
-}
+import type { PlayPayload, PlayStatus, PlayStatusItem } from "../types/PlayTypes";
 
 function GamePage() {
-  // get the logged in user
-  const { userInfo } = useSelector((state: RootState) => state.auth);
-
-  // get the current game
-  const { gameId } = useParams();
-
-  // playApiSlice mutations
-  const [getGame] = useGetGameMutation();
-  const [addPlay] = useAddPlayMutation();
-  const [deletePlay] = useDeletePlayMutation();
-  const [getPlay] = useGetPlayMutation();
-  
-  // ToggleButtonGroup active state
-  const [buttonGroupValue, setButtonGroupValue] = useState<number[]>([]);
-  const toggleButton = (val: number[]) => setButtonGroupValue(val);
-
-  // playQuery toggle state
-  const [playQueryValue, setPlayQueryValue] = useState(false);
-  const triggerPlayQuery = () => setPlayQueryValue(prev => !prev);
-
-  const status: Status = {
+  const status: PlayStatus = {
     playing: 0,
     played: 1,
     wishlist: 2,
     backlog: 3
   };
 
-  const fetchGameData = async (id: string = ''): Promise<SearchResult> => {
-    try {
-      // dispatch query via redux
-      const response = await getGame(id).unwrap();
-      if (!response) {
-        throw new Error('Error returning game info.');
-      }
-      const searchResult: SearchResult = response.results;
-      return searchResult;
-    } catch (error) {
-      toast.error('Failed to fetch game data.');
-      console.error(error);
-      return {};
-    }
-  };
+  // get the logged in user
+  const { userInfo } = useSelector((state: RootState) => state.auth);
 
-  const gameQuery = useQuery({
-    queryKey: ['game', gameId],
-    queryFn: () => fetchGameData(gameId)
-  })
+  // get the current game
+  const { gameId } = useParams();
 
-  const fetchPlayData = async (id: string = ''): Promise<Array<any>> => {
-    try {
-      const response = await getPlay(id).unwrap();
-      if (!response) {
-        throw new Error('Error returning play info.');
-      }
-      return response;
-    } catch (error) {
-      toast.error('Failed to fetch play data.');
-      console.error(error);
-      return [];
-    }
-  };
+  // gamesApiSlice endpoints
+  const {
+    data: gameQueryData,
+    isLoading: gameQueryIsLoading,
+    error: gameQueryError
+  } = useGetGameQuery(gameId!);
 
-  const playQuery = useQuery({
-    queryKey: ['play', gameId],
-    queryFn: () => fetchPlayData(gameId),
-    enabled: !!userInfo // only run when user is logged in
-  });
+  // playsApiSlice endpoints
+  const {
+    data: playQueryData, 
+    //isLoading: playQueryIsLoading, 
+    //error: playQueryError
+  } = useGetPlayQuery(gameId!, { skip: !userInfo });
+  const [addPlay] = useAddPlayMutation();
+  const [deletePlay] = useDeletePlayMutation();
 
+  // list of headings that correspond to server related entities
+  const gameEntities = [
+    { heading: "Developer", content: gameQueryData?.results.developers },
+    { heading: "Franchise", content: gameQueryData?.results.franchises },
+    { heading: "Genre", content: gameQueryData?.results.genres },
+    { heading: "Platform", content: gameQueryData?.results.platforms },
+    { heading: "Publisher", content: gameQueryData?.results.publishers }
+  ]
+
+  // active state of ToggleButtonGroup
+  const [activeButtonGroup, setActiveButtonGroup] = useState<number[]>([]);
+  const toggleButton = (val: number[]) => setActiveButtonGroup(val);
+
+  // set date format to "Mon DD, YYYY"
+  let formattedDate: string;
+  if (gameQueryData && gameQueryData.results.original_release_date) {
+    const dateString: string = gameQueryData.results.original_release_date;
+    const date: Date = new Date(dateString);
+    formattedDate = new Intl.DateTimeFormat('en-US', { month: 'short', day: '2-digit', year: 'numeric' }).format(new Date(date));
+  }
+
+  // update active ToggleButtonGroup values upon playQueryData refetch
   useEffect(() => {
-    // copy returned play status values into local array
     let statuses: Array<number> = [];
-    if (playQuery.data) {
-      playQuery.data.map((item: StatusItem) => {
+    if (playQueryData) {
+      playQueryData.map((item: PlayStatusItem) => {
+        // copy new play status values into local array
         if (item.status !== undefined) statuses.push(item.status);
       });
     }
-    // update component state with status array
-    if (statuses) setButtonGroupValue(statuses);
-  }, [playQuery.data, playQueryValue]);
+    // update component state with new status array
+    if (statuses) setActiveButtonGroup(statuses);
+  }, [playQueryData]);
 
-  const togglePlay = async (playStatus: number, btnGrpArray: number[]): Promise<void> => {
-    const formData: FormData = {
+  // toggle play based on active ToggleButtonGroup values
+  const togglePlay = async (playStatus: number, buttonGroup: number[]): Promise<void> => {
+    const payload: PlayPayload = {
       userId: userInfo.id,
       gameId: gameId!,
       status: playStatus
     };
-
-    // check whether the user has toggled a play
-    const toggle = (pStatus: number, btnGrpArr: number[]): boolean => {
-      // if the play status is already in the array, return false (toggle off)
-      if (btnGrpArr.includes(pStatus)) {
-        return false;
-      }
-      // otherwise return true (toggle on)
-      return true;
-    };
-
-    if (toggle(playStatus, btnGrpArray)) {
+    // add play if play status not in active button group, otherwise remove
+    if (!buttonGroup.includes(playStatus)) {
       try {
-        const response = await addPlay(formData).unwrap();
+        // add new play for user based on play status
+        const response = await addPlay(payload).unwrap();
         if (!response) {
           throw new Error('Error adding play.');
         }
@@ -137,14 +93,12 @@ function GamePage() {
       } catch (error) {
         toast.error("Failed to add play.");
         console.error(error);
-      } finally {
-        triggerPlayQuery;
       }
     } else {
       try {
-        // check which play to remove based on the status
+        // remove existing play for user based on play status
         let playId: number | undefined;
-        playQuery.data?.forEach((item: StatusItem) => {
+        playQueryData?.forEach((item: PlayStatusItem) => {
           if (item.status === playStatus) {
             playId = item.playId;
           }
@@ -165,43 +119,32 @@ function GamePage() {
           toast.error("Failed to delete play.");
           console.error(error);
         }
-      } finally {
-        triggerPlayQuery;
       }
     }
   };
 
-  let formattedDate: string;
-  if (gameQuery.data && gameQuery.data.original_release_date) {
-    const dateString: string = gameQuery.data.original_release_date;
-    const date: Date = new Date(dateString);
-    formattedDate = new Intl.DateTimeFormat('en-US', { month: 'short', day: '2-digit', year: 'numeric' }).format(new Date(date));
-  }
-
-  // a list of game info headings that correspond 
-  // to Game related entities on the server
-  const gameEntities = [
-    { heading: "Developer", content: gameQuery.data?.developers },
-    { heading: "Franchise", content: gameQuery.data?.franchises },
-    { heading: "Genre", content: gameQuery.data?.genres },
-    { heading: "Platform", content: gameQuery.data?.platforms },
-    { heading: "Publisher", content: gameQuery.data?.publishers }
-  ]
-
   return (
     <Container className="mt-4">
-      {gameQuery.isLoading && <Loader />}
-      {gameQuery.error && <p>Error: {gameQuery.error.message}</p>}
-      {gameQuery.data && (
+      {gameQueryIsLoading && <Loader />}
+      {gameQueryError && (
+        <p>
+          Error: {
+            'status' in gameQueryError
+              ? `Status ${gameQueryError.status}: ${JSON.stringify(gameQueryError.data)}`
+              : gameQueryError.message || 'An unknown error occurred.'
+          }
+        </p>
+      )}
+      {gameQueryData && (
         <Card className="my-2">
           <Card.Body className="d-flex">
-            {gameQuery.data.image && <img src={gameQuery.data.image.small_url} alt={gameQuery.data.name} />}
+            {gameQueryData.results.image && <img src={gameQueryData.results.image.small_url} alt={gameQueryData.results.name} />}
             <div className="d-flex flex-column mx-2">
 
               {/* Game info */}
-              <Card.Title>{gameQuery.data.name}</Card.Title>
+              <Card.Title>{gameQueryData.results.name}</Card.Title>
               <Card.Subtitle className="mb-2 text-muted">Release Date: {formattedDate!}</Card.Subtitle>
-              <Card.Text>{gameQuery.data.deck}</Card.Text>
+              <Card.Text>{gameQueryData.results.deck}</Card.Text>
 
               {/* Game details */}
               {gameEntities.map((gameEntity, index) => (
@@ -209,7 +152,7 @@ function GamePage() {
                   <Card.Title>
                     {gameEntity.content && gameEntity.content.length > 1 ? (<>{gameEntity.heading + "s"}</>) : (<>{gameEntity.heading}</>)}
                   </Card.Title>
-                  {gameEntity.content && gameEntity.content.map(entity => (
+                  {gameEntity.content && gameEntity.content.map((entity: any) => (
                     <li key={entity.id} style={{ listStyle: 'none' }}>
                       {entity.name}
                     </li>
@@ -220,11 +163,11 @@ function GamePage() {
 
               {/* User list control */}
               {userInfo ? (
-                <ToggleButtonGroup type="checkbox" value={buttonGroupValue} onChange={toggleButton}>
-                  <ToggleButton id="btn-playing" value={status.playing} onClick={() => togglePlay(status.playing, buttonGroupValue)}>Playing</ToggleButton>
-                  <ToggleButton id="btn-played" value={status.played} onClick={() => togglePlay(status.played, buttonGroupValue)}>Played</ToggleButton>
-                  <ToggleButton id="btn-wishlist" value={status.wishlist} onClick={() => togglePlay(status.wishlist, buttonGroupValue)}>Wishlist</ToggleButton>
-                  <ToggleButton id="btn-backlog" value={status.backlog} onClick={() => togglePlay(status.backlog, buttonGroupValue)}>Backlog</ToggleButton>
+                <ToggleButtonGroup type="checkbox" value={activeButtonGroup} onChange={toggleButton}>
+                  <ToggleButton id="btn-playing" value={status.playing} onClick={() => togglePlay(status.playing, activeButtonGroup)}>Playing</ToggleButton>
+                  <ToggleButton id="btn-played" value={status.played} onClick={() => togglePlay(status.played, activeButtonGroup)}>Played</ToggleButton>
+                  <ToggleButton id="btn-wishlist" value={status.wishlist} onClick={() => togglePlay(status.wishlist, activeButtonGroup)}>Wishlist</ToggleButton>
+                  <ToggleButton id="btn-backlog" value={status.backlog} onClick={() => togglePlay(status.backlog, activeButtonGroup)}>Backlog</ToggleButton>
                 </ToggleButtonGroup>
               ) : (
                 <></>
