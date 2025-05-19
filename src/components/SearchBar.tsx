@@ -11,10 +11,9 @@ import { Link, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import AsyncSelect from 'react-select/async';
 import debounce from 'lodash.debounce';
-import type { SearchResult } from '../types/DataTypes';
-import type { SearchResults } from '../types/DataTypes';
+import type { GameSearchResult, GameSearchResults } from '../types/GameTypes';
 
-interface Option extends SearchResult {
+interface Option extends GameSearchResult {
     isDivider?: boolean, // used for custom react-select styling
     label?: string,
     url?: string
@@ -35,7 +34,7 @@ function SearchBar() {
     const [options, setOptions] = useState<Options>([]);
 
     // track returned results object
-    let [searchResults, setSearchResults] = useState<SearchResults>({});
+    let [searchResults, setSearchResults] = useState<GameSearchResults>({});
 
     // initialize ref object with the 'current' property set to null
     // ref selection is required for AsyncSelect's blur() and clearValue() methods
@@ -95,7 +94,7 @@ function SearchBar() {
     };
 
     // get search results
-    const fetchGameData = async (inputString: string): Promise<SearchResults> => {
+    const fetchGameData = async (inputString: string): Promise<GameSearchResults> => {
         try {
             // proxy search query via server API (GiantBomb blocks client API calls)
             const response = await fetch(`https://localhost:5001/api/games/search?q=${encodeURIComponent(inputString)}`);

@@ -11,7 +11,7 @@ import Card from 'react-bootstrap/esm/Card';
 import Form from 'react-bootstrap/esm/Form';
 import Modal from 'react-bootstrap/Modal';
 import Loader from '../components/Loader';
-import type { User } from '../types/AuthTypes';
+import type { UserPayload } from '../types/UserTypes';
 
 function ProfilePage() {
     const [un, setUn] = useState('');
@@ -48,7 +48,7 @@ function ProfilePage() {
     const handleCloseModal = () => setShowModal(false);
     const handleShowModal = () => setShowModal(true);
 
-    const formData: User = {
+    const payload: UserPayload = {
         userId: userInfo.id,
         username: un,
         email: mail,
@@ -62,7 +62,7 @@ function ProfilePage() {
             toast.error('Passwords do not match.');
         } else {
             try {
-                const response = await updateUser(formData).unwrap();
+                const response = await updateUser(payload).unwrap();
                 dispatch(setCredentials(response));
                 setPwd('');
                 setConfirmPwd('');

@@ -10,7 +10,7 @@ import Button from 'react-bootstrap/esm/Button';
 import Card from 'react-bootstrap/esm/Card';
 import Form from 'react-bootstrap/esm/Form';
 import Loader from '../components/Loader';
-import type { User } from '../types/AuthTypes';
+import type { UserPayload } from '../types/UserTypes';
 
 function RegisterPage() {
     const navigate = useNavigate();
@@ -55,7 +55,7 @@ function RegisterPage() {
         setConfirmPwdTouched(true);
     }
 
-    const formData: User = {
+    const payload: UserPayload = {
         username: un,
         email: mail,
         password: pwd
@@ -68,7 +68,7 @@ function RegisterPage() {
             toast.error('Passwords do not match.');
         } else {
             try {
-                const response = await register(formData).unwrap();
+                const response = await register(payload).unwrap();
                 dispatch(setCredentials({ ...response }));
                 navigate('/');
             } catch (error: any) {

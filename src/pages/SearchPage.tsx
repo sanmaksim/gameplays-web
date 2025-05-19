@@ -5,7 +5,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useSearchMutation } from "../slices/gamesApiSlice";
 import Loader from "../components/Loader";
 import Paginator from "../components/Paginator";
-import type { SearchResult, SearchResults } from "../types/DataTypes";
+import type { GameSearchResult, GameSearchResults } from "../types/GameTypes";
 
 function SearchPage() {
     const [search] = useSearchMutation();
@@ -14,7 +14,7 @@ function SearchPage() {
     const searchTerm = searchParams.get('q') || '';
     const searchPage = searchParams.get('page') || '';
 
-    const fetchGameData = async (searchString: string, pageString: string): Promise<SearchResults> => {
+    const fetchGameData = async (searchString: string, pageString: string): Promise<GameSearchResults> => {
         try {
             let queryParams: { q: string, page?: string } = {
                 q: searchString
@@ -53,7 +53,7 @@ function SearchPage() {
                 {error && <p>Error: {error.message}</p>}
                 {data && (
                     <ListGroup>
-                        {data.results && data.results.map((result: SearchResult) => (
+                        {data.results && data.results.map((result: GameSearchResult) => (
                             <ListGroup.Item key={result.id} className="d-flex">
                                 <img src={result.image && result.image.icon_url} alt={result.name} className="me-2" />
                                 <div>

@@ -1,10 +1,10 @@
 import { Pagination } from "react-bootstrap";
 import { useMemo } from "react";
 import { useSearchParams } from "react-router-dom";
-import type { SearchResults } from "../types/DataTypes";
+import type { GameSearchResults } from "../types/GameTypes";
 
 type Props = {
-  searchResults: SearchResults;
+  searchResults: GameSearchResults;
 };
 
 function Paginator({ searchResults }: Props) {
