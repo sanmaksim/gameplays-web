@@ -1,4 +1,12 @@
-export interface SearchResult {
+export interface GameSearchParams {
+    queryParams: {
+        q: string,
+        page?: string
+    },
+    limit?: string
+}
+
+export interface GameSearchResult {
     id?: number,
     name?: string,
     date_last_updated?: string,
@@ -48,12 +56,12 @@ export interface SearchResult {
     ]
 }
 
-export interface SearchResults {
+export interface GameSearchResults {
     error?: string,
     limit?: number,
     offset?: number,
     number_of_page_results?: number,
     number_of_total_results?: number,
     status_code?: number,
-    results?: SearchResult[]
+    results?: GameSearchResult[]
 }
