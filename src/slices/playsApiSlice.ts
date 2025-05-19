@@ -1,17 +1,22 @@
 import { apiSlice } from "./apiSlice";
+import type { PlayPayload } from "../types/PlayTypes";
 
 const PLAYS_URL = '/api/plays';
 
-type FormData = {
-    userId: number,
-    gameId: string,
-    status: number
-};
-
 export const playsApiSlice = apiSlice.injectEndpoints({
     endpoints: (builder) => ({
+        getPlay: builder.query({
+            query: (id: string) => {
+                return {
+                    url: `${PLAYS_URL}/${id}`,
+                    method: 'GET',
+                    credentials: 'include'
+                }
+            },
+            providesTags: ['Play']
+        }),
         addPlay: builder.mutation({
-            query: (data: FormData) => {
+            query: (data: PlayPayload) => {
                 return {
                     url: `${PLAYS_URL}`,
                     method: 'POST',
@@ -21,7 +26,8 @@ export const playsApiSlice = apiSlice.injectEndpoints({
                     },
                     body: data
                 };
-            }
+            },
+            invalidatesTags: ['Play'] // to auto refetch query
         }),
         deletePlay: builder.mutation({
             query: (playId: number) => {
@@ -30,18 +36,10 @@ export const playsApiSlice = apiSlice.injectEndpoints({
                     method: 'DELETE',
                     credentials: 'include'
                 }
-            }
-        }),
-        getPlay: builder.mutation({
-            query: (id: string) => {
-                return {
-                    url: `${PLAYS_URL}/${id}`,
-                    method: 'GET',
-                    credentials: 'include'
-                }
-            }
+            },
+            invalidatesTags: ['Play'] // to auto refetch query
         })
     })
 });
 
-export const { useAddPlayMutation, useDeletePlayMutation, useGetPlayMutation } = playsApiSlice;
+export const { useGetPlayQuery, useAddPlayMutation, useDeletePlayMutation } = playsApiSlice;

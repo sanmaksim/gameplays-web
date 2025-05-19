@@ -1,19 +1,21 @@
 import { apiSlice } from "./apiSlice";
+import type { GameSearchParams } from "../types/GameTypes";
 
 const GAMES_URL = '/api/games';
 
 export const gamesApiSlice = apiSlice.injectEndpoints({
     endpoints: (builder) => ({
-        getGame: builder.mutation({
+        getGame: builder.query({
             query: (id: string) => {
                 return {
                     url: `${GAMES_URL}/${id}`,
                     method: 'GET'
                 };
-            }
+            },
+            providesTags: ['Game']
         }),
         search: builder.mutation({
-            query: ({ queryParams, limit = "10" }: { queryParams: { q: string, page?: string }, limit?: string }) => {
+            query: ({ queryParams, limit = "10" }: GameSearchParams) => {
                 const queryString = new URLSearchParams(queryParams).toString();
                 return {
                     url: `${GAMES_URL}/search?${queryString}`,
@@ -23,9 +25,10 @@ export const gamesApiSlice = apiSlice.injectEndpoints({
                         'Result-Limit': limit
                     }
                 };
-            }
+            },
+            invalidatesTags: ['Game'] // to auto refetch query
         })
     })
 });
 
-export const { useGetGameMutation, useSearchMutation } = gamesApiSlice;
+export const { useGetGameQuery, useSearchMutation } = gamesApiSlice;
