@@ -49,9 +49,9 @@ function GamePage() {
     { heading: "Publisher", content: gameQueryData?.results.publishers }
   ]
 
-  // track active state of ToggleButtonGroup
+  // track and set active state of ToggleButtonGroup
   const [activeButtonGroup, setActiveButtonGroup] = useState<number[]>([]);
-  const toggleButton = (val: number[]) => setActiveButtonGroup(val);
+  const handleToggleButton = (val: number[]) => setActiveButtonGroup(val);
 
   // track which individual button has been clicked
   const [loadingButton, setLoadingButton] = useState<number | null>(null);
@@ -78,7 +78,7 @@ function GamePage() {
   }, [playQueryData]);
 
   // toggle play based on active ToggleButtonGroup values
-  const togglePlay = async (statusValue: number, buttonGroup: number[]): Promise<void> => {
+  const handleTogglePlay = async (statusValue: number, buttonGroup: number[]): Promise<void> => {
     const payload: PlayPayload = {
       userId: userInfo.id,
       gameId: gameId!,
@@ -174,17 +174,17 @@ function GamePage() {
 
               {/* User list control */}
               {userInfo ? (
-                <ToggleButtonGroup type="checkbox" value={activeButtonGroup} onChange={toggleButton}>
-                  <ToggleButton id="btn-playing" value={status.playing} onClick={() => togglePlay(status.playing, activeButtonGroup)}>
+                <ToggleButtonGroup type="checkbox" value={activeButtonGroup} onChange={handleToggleButton}>
+                  <ToggleButton id="btn-playing" value={status.playing} onClick={() => handleTogglePlay(status.playing, activeButtonGroup)}>
                     {loadingButton === status.playing ? <Loader /> : 'Playing'}
                   </ToggleButton>
-                  <ToggleButton id="btn-played" value={status.played} onClick={() => togglePlay(status.played, activeButtonGroup)}>
+                  <ToggleButton id="btn-played" value={status.played} onClick={() => handleTogglePlay(status.played, activeButtonGroup)}>
                     {loadingButton === status.played ? <Loader /> : 'Played'}
                   </ToggleButton>
-                  <ToggleButton id="btn-wishlist" value={status.wishlist} onClick={() => togglePlay(status.wishlist, activeButtonGroup)}>
+                  <ToggleButton id="btn-wishlist" value={status.wishlist} onClick={() => handleTogglePlay(status.wishlist, activeButtonGroup)}>
                     {loadingButton === status.wishlist ? <Loader /> : 'Wishlist'}
                   </ToggleButton>
-                  <ToggleButton id="btn-backlog" value={status.backlog} onClick={() => togglePlay(status.backlog, activeButtonGroup)}>
+                  <ToggleButton id="btn-backlog" value={status.backlog} onClick={() => handleTogglePlay(status.backlog, activeButtonGroup)}>
                     {loadingButton === status.backlog ? <Loader /> : 'Backlog'}
                   </ToggleButton>
                 </ToggleButtonGroup>
