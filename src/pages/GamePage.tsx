@@ -49,9 +49,12 @@ function GamePage() {
     { heading: "Publisher", content: gameQueryData?.results.publishers }
   ]
 
-  // active state of ToggleButtonGroup
+  // track active state of ToggleButtonGroup
   const [activeButtonGroup, setActiveButtonGroup] = useState<number[]>([]);
   const toggleButton = (val: number[]) => setActiveButtonGroup(val);
+
+  // track which individual button has been clicked
+  const [loadingButton, setLoadingButton] = useState<number | null>(null);
 
   // set date format to "Mon DD, YYYY"
   let formattedDate: string;
@@ -75,14 +78,18 @@ function GamePage() {
   }, [playQueryData]);
 
   // toggle play based on active ToggleButtonGroup values
-  const togglePlay = async (playStatus: number, buttonGroup: number[]): Promise<void> => {
+  const togglePlay = async (statusValue: number, buttonGroup: number[]): Promise<void> => {
     const payload: PlayPayload = {
       userId: userInfo.id,
       gameId: gameId!,
-      status: playStatus
+      status: statusValue
     };
+
+    // 'activate' the currently selected button
+    setLoadingButton(statusValue);
+    
     // add play if play status not in active button group, otherwise remove
-    if (!buttonGroup.includes(playStatus)) {
+    if (!buttonGroup.includes(statusValue)) {
       try {
         // add new play for user based on play status
         const response = await addPlay(payload).unwrap();
@@ -93,13 +100,15 @@ function GamePage() {
       } catch (error) {
         toast.error("Failed to add play.");
         console.error(error);
+      } finally {
+        setLoadingButton(null);
       }
     } else {
       try {
         // remove existing play for user based on play status
         let playId: number | undefined;
         playQueryData?.forEach((item: PlayStatusItem) => {
-          if (item.status === playStatus) {
+          if (item.status === statusValue) {
             playId = item.playId;
           }
         });
@@ -119,6 +128,8 @@ function GamePage() {
           toast.error("Failed to delete play.");
           console.error(error);
         }
+      } finally {
+        setLoadingButton(null);
       }
     }
   };
@@ -164,10 +175,18 @@ function GamePage() {
               {/* User list control */}
               {userInfo ? (
                 <ToggleButtonGroup type="checkbox" value={activeButtonGroup} onChange={toggleButton}>
-                  <ToggleButton id="btn-playing" value={status.playing} onClick={() => togglePlay(status.playing, activeButtonGroup)}>Playing</ToggleButton>
-                  <ToggleButton id="btn-played" value={status.played} onClick={() => togglePlay(status.played, activeButtonGroup)}>Played</ToggleButton>
-                  <ToggleButton id="btn-wishlist" value={status.wishlist} onClick={() => togglePlay(status.wishlist, activeButtonGroup)}>Wishlist</ToggleButton>
-                  <ToggleButton id="btn-backlog" value={status.backlog} onClick={() => togglePlay(status.backlog, activeButtonGroup)}>Backlog</ToggleButton>
+                  <ToggleButton id="btn-playing" value={status.playing} onClick={() => togglePlay(status.playing, activeButtonGroup)}>
+                    {loadingButton === status.playing ? <Loader /> : 'Playing'}
+                  </ToggleButton>
+                  <ToggleButton id="btn-played" value={status.played} onClick={() => togglePlay(status.played, activeButtonGroup)}>
+                    {loadingButton === status.played ? <Loader /> : 'Played'}
+                  </ToggleButton>
+                  <ToggleButton id="btn-wishlist" value={status.wishlist} onClick={() => togglePlay(status.wishlist, activeButtonGroup)}>
+                    {loadingButton === status.wishlist ? <Loader /> : 'Wishlist'}
+                  </ToggleButton>
+                  <ToggleButton id="btn-backlog" value={status.backlog} onClick={() => togglePlay(status.backlog, activeButtonGroup)}>
+                    {loadingButton === status.backlog ? <Loader /> : 'Backlog'}
+                  </ToggleButton>
                 </ToggleButtonGroup>
               ) : (
                 <></>
