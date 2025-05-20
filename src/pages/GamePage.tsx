@@ -2,7 +2,7 @@ import { Card, Container, ToggleButton, ToggleButtonGroup } from "react-bootstra
 import { Fragment } from "react/jsx-runtime";
 import { RootState } from "../store";
 import { toast } from "react-toastify";
-import { useAddPlayMutation, useDeletePlayMutation, useGetPlayQuery } from "../slices/playsApiSlice";
+import { useAddPlayMutation, useDeletePlayMutation, useGetPlaysQuery } from "../slices/playsApiSlice";
 import { useGetGameQuery } from "../slices/gamesApiSlice";
 import { useParams } from "react-router-dom";
 import { useSelector } from "react-redux";
@@ -36,7 +36,7 @@ function GamePage() {
     data: playQueryData, 
     //isLoading: playQueryIsLoading, 
     //error: playQueryError
-  } = useGetPlayQuery(gameId!, { skip: !userInfo });
+  } = useGetPlaysQuery(gameId!, { skip: !userInfo });
   const [addPlay] = useAddPlayMutation();
   const [deletePlay] = useDeletePlayMutation();
 
