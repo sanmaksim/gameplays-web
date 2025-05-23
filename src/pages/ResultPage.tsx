@@ -10,7 +10,7 @@ import { useEffect, useState } from "react";
 import Loader from "../components/Loader";
 import type { PlayPayload, PlayStatus, PlayStatusItem } from "../types/PlayTypes";
 
-function GamePage() {
+function ResultPage() {
   const status: PlayStatus = {
     playing: 0,
     played: 1,
@@ -199,4 +199,4 @@ function GamePage() {
   )
 }
 
-export default GamePage;
+export default ResultPage;
