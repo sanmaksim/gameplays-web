@@ -5,10 +5,10 @@ const PLAYS_URL = '/api/plays';
 
 export const playsApiSlice = apiSlice.injectEndpoints({
     endpoints: (builder) => ({
-        getPlays: builder.query({
+        getPlaysByGameId: builder.query({
             query: (id: string) => {
                 return {
-                    url: `${PLAYS_URL}/${id}`,
+                    url: `${PLAYS_URL}/game/${id}`,
                     method: 'GET',
                     credentials: 'include'
                 }
@@ -42,4 +42,4 @@ export const playsApiSlice = apiSlice.injectEndpoints({
     })
 });
 
-export const { useGetPlaysQuery, useAddPlayMutation, useDeletePlayMutation } = playsApiSlice;
+export const { useGetPlaysByGameIdQuery, useAddPlayMutation, useDeletePlayMutation } = playsApiSlice;
