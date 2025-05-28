@@ -1,31 +1,30 @@
 import { Button, Container, Table } from "react-bootstrap";
 import { useState } from "react";
-import BacklogShelf from "../components/BacklogShelf";
-import PlayedShelf from "../components/PlayedShelf";
-import PlayingShelf from "../components/PlayingShelf";
-import WishlistShelf from "../components/WishlistShelf";
+import Shelf from "../components/Shelf";
 
 function GamesPage() {
-    const playing = 'Playing';
-    const played = 'Played';
-    const wishlist = 'Wishlist';
-    const backlog = 'Backlog';
+    enum Status {
+        Playing,
+        Played,
+        Wishlist,
+        Backlog
+    }
 
-    const [activeShelf, setActiveShelf] = useState(playing);
+    const [activeShelf, setActiveShelf] = useState(Status.Playing);
 
     let shelf;
     switch (activeShelf) {
-        case playing:
-            shelf = <PlayingShelf />;
+        case Status.Playing:
+            shelf = <Shelf status={Status.Playing} />;
             break;
-        case played:
-            shelf = <PlayedShelf />;
+        case Status.Played:
+            shelf = <Shelf status={Status.Played}/>;
             break;
-        case wishlist:
-            shelf = <WishlistShelf />;
+        case Status.Wishlist:
+            shelf = <Shelf status={Status.Wishlist} />;
             break;
-        case backlog:
-            shelf = <BacklogShelf />;
+        case Status.Backlog:
+            shelf = <Shelf status={Status.Backlog} />;
             break;
         default:
             shelf = null;
@@ -33,24 +32,24 @@ function GamesPage() {
 
     return (
         <Container className="mt-4 d-flex">
-            <Table borderless style={{ width: "150px" }}>
+            <Table borderless style={{ height: "250px", width: "150px" }}>
                 <thead>
                     <tr>
-                        <th>Shelf: {activeShelf}</th>
+                        <th>Shelf: {Status[activeShelf]}</th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr>
-                        <td><Button onClick={() => setActiveShelf(playing)}>Playing</Button></td>
+                        <td><Button onClick={() => setActiveShelf(Status.Playing)} style={{ width: "80px" }}>Playing</Button></td>
                     </tr>
                     <tr>
-                        <td><Button onClick={() => setActiveShelf(played)}>Played</Button></td>
+                        <td><Button onClick={() => setActiveShelf(Status.Played)} style={{ width: "80px" }}>Played</Button></td>
                     </tr>
                     <tr>
-                        <td><Button onClick={() => setActiveShelf(wishlist)}>Wishlist</Button></td>
+                        <td><Button onClick={() => setActiveShelf(Status.Wishlist)} style={{ width: "80px" }}>Wishlist</Button></td>
                     </tr>
                     <tr>
-                        <td><Button onClick={() => setActiveShelf(backlog)}>Backlog</Button></td>
+                        <td><Button onClick={() => setActiveShelf(Status.Backlog)} style={{ width: "80px" }}>Backlog</Button></td>
                     </tr>
                 </tbody>
             </Table>
