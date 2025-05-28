@@ -15,6 +15,15 @@ export const playsApiSlice = apiSlice.injectEndpoints({
             },
             providesTags: ['Play']
         }),
+        getPlaysByUserId: builder.query({
+            query: (id: string) => {
+                return {
+                    url: `${PLAYS_URL}/user/${id}`,
+                    method: 'GET',
+                    credentials: 'include'
+                }
+            }
+        }),
         addPlay: builder.mutation({
             query: (data: PlayPayload) => {
                 return {
@@ -42,4 +51,9 @@ export const playsApiSlice = apiSlice.injectEndpoints({
     })
 });
 
-export const { useGetPlaysByGameIdQuery, useAddPlayMutation, useDeletePlayMutation } = playsApiSlice;
+export const { 
+    useGetPlaysByGameIdQuery, 
+    useGetPlaysByUserIdQuery, 
+    useAddPlayMutation, 
+    useDeletePlayMutation 
+} = playsApiSlice;
