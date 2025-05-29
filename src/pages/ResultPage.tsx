@@ -1,4 +1,4 @@
-import { Card, Container, ToggleButton, ToggleButtonGroup } from "react-bootstrap";
+import { Button, ButtonGroup, Card, Container, Dropdown, Modal } from "react-bootstrap";
 import { Fragment } from "react/jsx-runtime";
 import { RootState } from "../store";
 import { toast } from "react-toastify";
@@ -55,6 +55,11 @@ function ResultPage() {
 
   // track which individual button has been clicked
   const [loadingButton, setLoadingButton] = useState<number | null>(null);
+
+  // modal dialog control
+  const [showModal, setShowModal] = useState(false);
+  const handleCloseModal = () => setShowModal(false);
+  const handleShowModal = () => setShowModal(true);
 
   // set date format to "Mon DD, YYYY"
   let formattedDate: string;
@@ -149,6 +154,7 @@ function ResultPage() {
       {gameQueryData && (
         <Card className="my-2">
           <Card.Body className="d-flex">
+            {/* TODO: restrict image size */}
             {gameQueryData.results.image && <img src={gameQueryData.results.image.small_url} alt={gameQueryData.results.name} />}
             <div className="d-flex flex-column mx-2">
 
@@ -174,20 +180,28 @@ function ResultPage() {
 
               {/* User list control */}
               {userInfo ? (
-                <ToggleButtonGroup type="checkbox" value={activeButtonGroup} onChange={handleToggleButton}>
-                  <ToggleButton id="btn-playing" value={status.playing} onClick={() => handleTogglePlay(status.playing, activeButtonGroup)}>
-                    {loadingButton === status.playing ? <Loader /> : 'Playing'}
-                  </ToggleButton>
-                  <ToggleButton id="btn-played" value={status.played} onClick={() => handleTogglePlay(status.played, activeButtonGroup)}>
-                    {loadingButton === status.played ? <Loader /> : 'Played'}
-                  </ToggleButton>
-                  <ToggleButton id="btn-wishlist" value={status.wishlist} onClick={() => handleTogglePlay(status.wishlist, activeButtonGroup)}>
-                    {loadingButton === status.wishlist ? <Loader /> : 'Wishlist'}
-                  </ToggleButton>
-                  <ToggleButton id="btn-backlog" value={status.backlog} onClick={() => handleTogglePlay(status.backlog, activeButtonGroup)}>
-                    {loadingButton === status.backlog ? <Loader /> : 'Backlog'}
-                  </ToggleButton>
-                </ToggleButtonGroup>
+                <>
+                  <Card.Text as={"div"}>
+                    <Dropdown className="mx-auto" as={ButtonGroup}>
+                      <Button variant="primary">Add to Wishlist</Button>
+                      <Dropdown.Toggle split variant="primary" id="dropdown-split-basic" onClick={handleShowModal} />
+                      <Dropdown.Menu>
+                        <Dropdown.Item href="#"></Dropdown.Item>
+                      </Dropdown.Menu>
+                    </Dropdown>
+                  </Card.Text>
+
+                  <Modal centered show={showModal} onHide={handleCloseModal}>
+                    <Modal.Header closeButton>
+                        <Modal.Title>Choose a shelf for this game</Modal.Title>
+                    </Modal.Header>
+                    <Modal.Body className="d-flex flex-column align-items-center justify-content-center mb-2">
+                      <Button className="w-50 mb-3" variant="outline-primary">Currently playing</Button>
+                      <Button className="w-50" variant="outline-primary">Already played</Button>
+                      <Button className="w-50 mt-3" variant="outline-primary">Backlog</Button>
+                    </Modal.Body>
+                  </Modal>
+                </>
               ) : (
                 <></>
               )}
