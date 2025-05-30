@@ -1,46 +1,43 @@
 import { Button, ButtonGroup, Card, Container, Dropdown, Modal } from "react-bootstrap";
 import { Fragment } from "react/jsx-runtime";
 import { RootState } from "../store";
+import { Status } from "../types/PlayTypes";
 import { toast } from "react-toastify";
-import { useAddPlayMutation, useDeletePlayMutation, useGetPlaysByGameIdQuery } from "../slices/playsApiSlice";
+// import { useAddPlayMutation, useDeletePlayMutation, useGetPlaysByGameIdQuery } from "../slices/playsApiSlice";
+import { useAddPlayMutation } from "../slices/playsApiSlice";
 import { useGetGameQuery } from "../slices/gamesApiSlice";
 import { useParams } from "react-router-dom";
 import { useSelector } from "react-redux";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import Loader from "../components/Loader";
-import type { PlayPayload, PlayStatus, PlayStatusItem } from "../types/PlayTypes";
+import type { PlayPayload } from "../types/PlayTypes";
 
 function ResultPage() {
-  const status: PlayStatus = {
-    playing: 0,
-    played: 1,
-    wishlist: 2,
-    backlog: 3
-  };
-
-  // get the logged in user
+  // get logged in user
   const { userInfo } = useSelector((state: RootState) => state.auth);
 
-  // get the current game
+  // get current game ID from URL
   const { gameId } = useParams();
 
-  // gamesApiSlice endpoints
+  // destructure game query result
   const {
     data: gameQueryData,
     isLoading: gameQueryIsLoading,
     error: gameQueryError
   } = useGetGameQuery(gameId!);
 
-  // playsApiSlice endpoints
-  const {
-    data: playQueryData, 
-    //isLoading: playQueryIsLoading, 
-    //error: playQueryError
-  } = useGetPlaysByGameIdQuery(gameId!, { skip: !userInfo });
-  const [addPlay] = useAddPlayMutation();
-  const [deletePlay] = useDeletePlayMutation();
+  // destructure play query result
+  // const {
+  //   data: playQueryData, 
+  //   isLoading: playQueryIsLoading, 
+  //   error: playQueryError
+  // } = useGetPlaysByGameIdQuery(gameId!, { skip: !userInfo });
 
-  // list of headings that correspond to server related entities
+  // get rtk mutation trigger functions
+  const [addPlay] = useAddPlayMutation();
+  //const [deletePlay] = useDeletePlayMutation();
+
+  // create a list of headings that correspond to server related entities
   const gameEntities = [
     { heading: "Developer", content: gameQueryData?.results.developers },
     { heading: "Franchise", content: gameQueryData?.results.franchises },
@@ -49,12 +46,8 @@ function ResultPage() {
     { heading: "Publisher", content: gameQueryData?.results.publishers }
   ]
 
-  // track and set active state of ToggleButtonGroup
-  const [activeButtonGroup, setActiveButtonGroup] = useState<number[]>([]);
-  const handleToggleButton = (val: number[]) => setActiveButtonGroup(val);
-
-  // track which individual button has been clicked
-  const [loadingButton, setLoadingButton] = useState<number | null>(null);
+  // active tracker for buttons
+  const [activeIndex, setActiveIndex] = useState<number | null>(null);
 
   // modal dialog control
   const [showModal, setShowModal] = useState(false);
@@ -69,73 +62,24 @@ function ResultPage() {
     formattedDate = new Intl.DateTimeFormat('en-US', { month: 'short', day: '2-digit', year: 'numeric' }).format(new Date(date));
   }
 
-  // update active ToggleButtonGroup values upon playQueryData refetch
-  useEffect(() => {
-    let statuses: Array<number> = [];
-    if (playQueryData) {
-      playQueryData.map((item: PlayStatusItem) => {
-        // copy new play status values into local array
-        if (item.status !== undefined) statuses.push(item.status);
-      });
-    }
-    // update component state with new status array
-    if (statuses) setActiveButtonGroup(statuses);
-  }, [playQueryData]);
-
-  // toggle play based on active ToggleButtonGroup values
-  const handleTogglePlay = async (statusValue: number, buttonGroup: number[]): Promise<void> => {
+  const handleAddPlay = async (statusValue: Status, buttonIndex: number): Promise<void> => {
     const payload: PlayPayload = {
       userId: userInfo.id,
       gameId: gameId!,
       status: statusValue
     };
 
-    // 'activate' the currently selected button
-    setLoadingButton(statusValue);
-    
-    // add play if play status not in active button group, otherwise remove
-    if (!buttonGroup.includes(statusValue)) {
-      try {
-        // add new play for user based on play status
-        const response = await addPlay(payload).unwrap();
-        if (!response) {
-          throw new Error('Error adding play.');
-        }
-        toast.success(response.message);
-      } catch (error) {
-        toast.error("Failed to add play.");
-        console.error(error);
-      } finally {
-        setLoadingButton(null);
+    try {
+      // add new play for user based on play status
+      const response = await addPlay(payload).unwrap();
+      if (!response) {
+        throw new Error('Error adding play.');
       }
-    } else {
-      try {
-        // remove existing play for user based on play status
-        let playId: number | undefined;
-        playQueryData?.forEach((item: PlayStatusItem) => {
-          if (item.status === statusValue) {
-            playId = item.playId;
-          }
-        });
-        if (playId !== undefined) {
-          const response = await deletePlay(playId).unwrap();
-          if (!response) {
-            throw new Error('Error deleting play.');
-          }
-          toast.success(response.message);
-        } else {
-          throw new Error('Error getting playId');
-        }
-      } catch (error) {
-        if (error instanceof Error) {
-          toast.error(error.message);
-        } else {
-          toast.error("Failed to delete play.");
-          console.error(error);
-        }
-      } finally {
-        setLoadingButton(null);
-      }
+      toast.success(response.message);
+      setActiveIndex(buttonIndex);
+    } catch (error) {
+      toast.error("Failed to add play.");
+      console.error(error);
     }
   };
 
@@ -154,7 +98,6 @@ function ResultPage() {
       {gameQueryData && (
         <Card className="my-2">
           <Card.Body className="d-flex">
-            {/* TODO: restrict image size */}
             {gameQueryData.results.image && <img src={gameQueryData.results.image.small_url} alt={gameQueryData.results.name} />}
             <div className="d-flex flex-column mx-2">
 
@@ -183,7 +126,14 @@ function ResultPage() {
                 <>
                   <Card.Text as={"div"}>
                     <Dropdown className="mx-auto" as={ButtonGroup}>
-                      <Button variant="primary">Add to Wishlist</Button>
+                      <Button
+                        active={activeIndex === Status.Wishlist}
+                        data-index={Status.Wishlist}
+                        onClick={(e) => handleAddPlay(Status.Wishlist, Number(e.currentTarget.dataset.index))}
+                        variant="primary"
+                      >
+                        Add to Wishlist
+                      </Button>
                       <Dropdown.Toggle split variant="primary" id="dropdown-split-basic" onClick={handleShowModal} />
                       <Dropdown.Menu>
                         <Dropdown.Item href="#"></Dropdown.Item>
@@ -196,9 +146,33 @@ function ResultPage() {
                         <Modal.Title>Choose a shelf for this game</Modal.Title>
                     </Modal.Header>
                     <Modal.Body className="d-flex flex-column align-items-center justify-content-center mb-2">
-                      <Button className="w-50 mb-3" variant="outline-primary">Currently playing</Button>
-                      <Button className="w-50" variant="outline-primary">Already played</Button>
-                      <Button className="w-50 mt-3" variant="outline-primary">Backlog</Button>
+                      <Button
+                        active={activeIndex === Status.Playing}
+                        className="w-50 mb-3"
+                        data-index={Status.Playing}
+                        onClick={(e) => handleAddPlay(Status.Playing, Number(e.currentTarget.dataset.index))}
+                        variant="outline-primary"
+                      >
+                        Currently playing
+                      </Button>
+                      <Button
+                        active={activeIndex === Status.Played}
+                        className="w-50"
+                        data-index={Status.Played}
+                        onClick={(e) => handleAddPlay(Status.Played, Number(e.currentTarget.dataset.index))}
+                        variant="outline-primary"
+                      >
+                        Already played
+                      </Button>
+                      <Button
+                        active={activeIndex === Status.Backlog}
+                        className="w-50 mt-3"
+                        data-index={Status.Backlog}
+                        onClick={(e) => handleAddPlay(Status.Backlog, Number(e.currentTarget.dataset.index))}
+                        variant="outline-primary"
+                      >
+                        Backlog
+                      </Button>
                     </Modal.Body>
                   </Modal>
                 </>
