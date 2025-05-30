@@ -1,15 +1,9 @@
 import { Button, Container, Table } from "react-bootstrap";
+import { Status } from "../types/PlayTypes";
 import { useState } from "react";
 import Shelf from "../components/Shelf";
 
 function GamesPage() {
-    enum Status {
-        Playing,
-        Played,
-        Wishlist,
-        Backlog
-    }
-
     const [activeShelf, setActiveShelf] = useState(Status.Playing);
 
     let shelf;
@@ -29,7 +23,7 @@ function GamesPage() {
         default:
             shelf = null;
     }
-
+    // TODO: make menu and shelf responsive
     return (
         <Container className="mt-4 d-flex">
             <Table borderless style={{ height: "250px", width: "150px" }}>
