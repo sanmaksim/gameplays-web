@@ -1,3 +1,10 @@
+export enum Status {
+    Playing,
+    Played,
+    Wishlist,
+    Backlog
+}
+
 export interface PlayData {
     id?: number,
     name?: string,
@@ -12,24 +19,17 @@ export interface PlayData {
     hours_played?: number,
     percentage_completed?: number,
     last_played_at?: string,
-    status?: number,
+    status?: Status,
     api_game_id?: number
 }
 
 export interface PlayPayload {
     userId: number,
     gameId: string,
-    status: number
-}
-
-export interface PlayStatus {
-    playing: number,
-    played: number,
-    wishlist: number,
-    backlog: number
+    status: Status
 }
 
 export interface PlayStatusItem {
     playId?: number,
-    status?: number
+    status?: Status
 }
