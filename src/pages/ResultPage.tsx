@@ -1,4 +1,4 @@
-import { Button, ButtonGroup, Card, Container, Dropdown, Modal } from "react-bootstrap";
+import { Button, Card, Container, Modal } from "react-bootstrap";
 import { Fragment } from "react/jsx-runtime";
 import { RootState } from "../store";
 import { Status } from "../types/PlayTypes";
@@ -9,6 +9,7 @@ import { useGetGameQuery } from "../slices/gamesApiSlice";
 import { useParams } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { useState } from "react";
+import ActiveButton from "../components/ActiveButton";
 import Loader from "../components/Loader";
 import type { PlayPayload } from "../types/PlayTypes";
 
@@ -48,6 +49,7 @@ function ResultPage() {
 
   // active tracker for buttons
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
+  const [buttonLabel, setButtonLabel] = useState<string>('Wishlist');
 
   // modal dialog control
   const [showModal, setShowModal] = useState(false);
@@ -77,6 +79,7 @@ function ResultPage() {
       }
       toast.success(response.message);
       setActiveIndex(buttonIndex);
+      setButtonLabel(Status[buttonIndex]);
     } catch (error) {
       toast.error("Failed to add play.");
       console.error(error);
@@ -125,20 +128,7 @@ function ResultPage() {
               {userInfo ? (
                 <>
                   <Card.Text as={"div"}>
-                    <Dropdown className="mx-auto" as={ButtonGroup}>
-                      <Button
-                        active={activeIndex === Status.Wishlist}
-                        data-index={Status.Wishlist}
-                        onClick={(e) => handleAddPlay(Status.Wishlist, Number(e.currentTarget.dataset.index))}
-                        variant="primary"
-                      >
-                        Add to Wishlist
-                      </Button>
-                      <Dropdown.Toggle split variant="primary" id="dropdown-split-basic" onClick={handleShowModal} />
-                      <Dropdown.Menu>
-                        <Dropdown.Item href="#"></Dropdown.Item>
-                      </Dropdown.Menu>
-                    </Dropdown>
+                    <ActiveButton index={activeIndex} label={buttonLabel} addPlay={handleAddPlay} showModal={handleShowModal}></ActiveButton>
                   </Card.Text>
 
                   <Modal centered show={showModal} onHide={handleCloseModal}>
@@ -153,25 +143,34 @@ function ResultPage() {
                         onClick={(e) => handleAddPlay(Status.Playing, Number(e.currentTarget.dataset.index))}
                         variant="outline-primary"
                       >
-                        Currently playing
+                        {activeIndex === Status.Playing ? Status[Status.Playing] : `Add to ${Status[Status.Playing]}`}
                       </Button>
                       <Button
                         active={activeIndex === Status.Played}
-                        className="w-50"
+                        className="w-50 mb-3"
                         data-index={Status.Played}
                         onClick={(e) => handleAddPlay(Status.Played, Number(e.currentTarget.dataset.index))}
                         variant="outline-primary"
                       >
-                        Already played
+                        {activeIndex === Status.Played ? Status[Status.Played] : `Add to ${Status[Status.Played]}`}
+                      </Button>
+                      <Button
+                        active={activeIndex === Status.Wishlist}
+                        className="w-50 mb-3"
+                        data-index={Status.Wishlist}
+                        onClick={(e) => handleAddPlay(Status.Wishlist, Number(e.currentTarget.dataset.index))}
+                        variant="outline-primary"
+                      >
+                        {activeIndex === Status.Wishlist ? `${Status[Status.Wishlist]}ed` : `Add to ${Status[Status.Wishlist]}`}
                       </Button>
                       <Button
                         active={activeIndex === Status.Backlog}
-                        className="w-50 mt-3"
+                        className="w-50"
                         data-index={Status.Backlog}
                         onClick={(e) => handleAddPlay(Status.Backlog, Number(e.currentTarget.dataset.index))}
                         variant="outline-primary"
                       >
-                        Backlog
+                        {activeIndex === Status.Backlog ? `${Status[Status.Backlog]}ged` : `Add to ${Status[Status.Backlog]}`}
                       </Button>
                     </Modal.Body>
                   </Modal>
