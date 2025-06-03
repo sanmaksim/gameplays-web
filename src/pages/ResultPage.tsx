@@ -3,12 +3,11 @@ import { Fragment } from "react/jsx-runtime";
 import { RootState } from "../store";
 import { Status } from "../types/PlayTypes";
 import { toast } from "react-toastify";
-// import { useAddPlayMutation, useDeletePlayMutation, useGetPlaysByGameIdQuery } from "../slices/playsApiSlice";
-import { useAddPlayMutation } from "../slices/playsApiSlice";
+import { useAddPlayMutation, useDeletePlayMutation, useGetPlaysByGameIdQuery } from "../slices/playsApiSlice";
 import { useGetGameQuery } from "../slices/gamesApiSlice";
 import { useParams } from "react-router-dom";
 import { useSelector } from "react-redux";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import ActiveButton from "../components/ActiveButton";
 import Loader from "../components/Loader";
 import type { PlayPayload } from "../types/PlayTypes";
@@ -28,15 +27,15 @@ function ResultPage() {
   } = useGetGameQuery(gameId!);
 
   // destructure play query result
-  // const {
-  //   data: playQueryData, 
-  //   isLoading: playQueryIsLoading, 
-  //   error: playQueryError
-  // } = useGetPlaysByGameIdQuery(gameId!, { skip: !userInfo });
+  const {
+    data: playQueryData, 
+    // isLoading: playQueryIsLoading, 
+    // error: playQueryError
+  } = useGetPlaysByGameIdQuery(gameId!, { skip: !userInfo });
 
   // get rtk mutation trigger functions
   const [addPlay] = useAddPlayMutation();
-  //const [deletePlay] = useDeletePlayMutation();
+  const [deletePlay] = useDeletePlayMutation();
 
   // create a list of headings that correspond to server related entities
   const gameEntities = [
@@ -49,7 +48,8 @@ function ResultPage() {
 
   // active tracker for buttons
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
-  const [buttonLabel, setButtonLabel] = useState<string>('Wishlist');
+  const [activeIndexRunOnce, setActiveIndexRunOnce] = useState<boolean>(false);
+  const [buttonLabel, setButtonLabel] = useState<string>(Status[Status.Wishlist]);
 
   // modal dialog control
   const [showModal, setShowModal] = useState(false);
@@ -64,25 +64,65 @@ function ResultPage() {
     formattedDate = new Intl.DateTimeFormat('en-US', { month: 'short', day: '2-digit', year: 'numeric' }).format(new Date(date));
   }
 
-  const handleAddPlay = async (statusValue: Status, buttonIndex: number): Promise<void> => {
+  // update active button
+  useEffect(() => {
+    // ensure returned data is a play object before updating status
+    if (playQueryData && !playQueryData.message) {
+      if (!activeIndexRunOnce) {
+        // this update only needs to happen once after page load
+        setActiveIndex(playQueryData.status);
+        setActiveIndexRunOnce(true);
+      }
+      if (activeIndex !== null) {
+        setButtonLabel(Status[playQueryData.status]);
+      }
+    }
+  }, [activeIndex, playQueryData]);
+
+  const handleTogglePlay = async (statusValue: Status, buttonIndex: number): Promise<void> => {
     const payload: PlayPayload = {
       userId: userInfo.id,
       gameId: gameId!,
       status: statusValue
     };
-
-    try {
-      // add new play for user based on play status
-      const response = await addPlay(payload).unwrap();
-      if (!response) {
-        throw new Error('Error adding play.');
+    
+    // add/remove play based on active/inactive button status
+    if (activeIndex !== statusValue) {
+      try {
+        const response = await addPlay(payload).unwrap();
+        if (!response) {
+          throw new Error('Error adding play.');
+        }
+        toast.success(response.message);
+        // set the main button to the updated shelf/label
+        setActiveIndex(buttonIndex);
+        setButtonLabel(Status[buttonIndex]);
+      } catch (error) {
+        toast.error("Failed to add play.");
+        console.error(error);
       }
-      toast.success(response.message);
-      setActiveIndex(buttonIndex);
-      setButtonLabel(Status[buttonIndex]);
-    } catch (error) {
-      toast.error("Failed to add play.");
-      console.error(error);
+    } else {
+      try {
+        if (activeIndex === playQueryData.status) {
+          const response = await deletePlay(playQueryData.playId).unwrap();
+          if (!response) {
+            throw new Error('Error removing from shelf.');
+          }
+          toast.success(response.message);
+          // reset the main button back to the default
+          setActiveIndex(null);
+          setButtonLabel(Status[Status.Wishlist]);
+        } else {
+          throw new Error('Invalid play status.');
+        }
+      } catch (error) {
+        if (error instanceof Error) {
+          toast.error(error.message);
+        } else {
+          toast.error("Failed to remove game.");
+          console.error(error);
+        }
+      }
     }
   };
 
@@ -128,7 +168,7 @@ function ResultPage() {
               {userInfo ? (
                 <>
                   <Card.Text as={"div"}>
-                    <ActiveButton index={activeIndex} label={buttonLabel} addPlay={handleAddPlay} showModal={handleShowModal}></ActiveButton>
+                    <ActiveButton index={activeIndex} label={buttonLabel} togglePlay={handleTogglePlay} showModal={handleShowModal}></ActiveButton>
                   </Card.Text>
 
                   <Modal centered show={showModal} onHide={handleCloseModal}>
@@ -140,7 +180,7 @@ function ResultPage() {
                         active={activeIndex === Status.Playing}
                         className="w-50 mb-3"
                         data-index={Status.Playing}
-                        onClick={(e) => handleAddPlay(Status.Playing, Number(e.currentTarget.dataset.index))}
+                        onClick={(e) => handleTogglePlay(Status.Playing, Number(e.currentTarget.dataset.index))}
                         variant="outline-primary"
                       >
                         {activeIndex === Status.Playing ? Status[Status.Playing] : `Add to ${Status[Status.Playing]}`}
@@ -149,7 +189,7 @@ function ResultPage() {
                         active={activeIndex === Status.Played}
                         className="w-50 mb-3"
                         data-index={Status.Played}
-                        onClick={(e) => handleAddPlay(Status.Played, Number(e.currentTarget.dataset.index))}
+                        onClick={(e) => handleTogglePlay(Status.Played, Number(e.currentTarget.dataset.index))}
                         variant="outline-primary"
                       >
                         {activeIndex === Status.Played ? Status[Status.Played] : `Add to ${Status[Status.Played]}`}
@@ -158,7 +198,7 @@ function ResultPage() {
                         active={activeIndex === Status.Wishlist}
                         className="w-50 mb-3"
                         data-index={Status.Wishlist}
-                        onClick={(e) => handleAddPlay(Status.Wishlist, Number(e.currentTarget.dataset.index))}
+                        onClick={(e) => handleTogglePlay(Status.Wishlist, Number(e.currentTarget.dataset.index))}
                         variant="outline-primary"
                       >
                         {activeIndex === Status.Wishlist ? `${Status[Status.Wishlist]}ed` : `Add to ${Status[Status.Wishlist]}`}
@@ -167,7 +207,7 @@ function ResultPage() {
                         active={activeIndex === Status.Backlog}
                         className="w-50"
                         data-index={Status.Backlog}
-                        onClick={(e) => handleAddPlay(Status.Backlog, Number(e.currentTarget.dataset.index))}
+                        onClick={(e) => handleTogglePlay(Status.Backlog, Number(e.currentTarget.dataset.index))}
                         variant="outline-primary"
                       >
                         {activeIndex === Status.Backlog ? `${Status[Status.Backlog]}ged` : `Add to ${Status[Status.Backlog]}`}
