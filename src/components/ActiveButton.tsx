@@ -4,22 +4,22 @@ import { Status } from "../types/PlayTypes";
 type Props = {
     index: number | null,
     label: string,
-    addPlay: (statusValue: Status, buttonIndex: number) => Promise<void>,
+    togglePlay: (statusValue: Status, buttonIndex: number) => Promise<void>,
     showModal: () => void
 }
 
-function ActiveButton({ index, label, addPlay, showModal }: Props) {
+function ActiveButton({ index, label, togglePlay, showModal }: Props) {
     return (
         <Dropdown className="mx-auto" as={ButtonGroup}>
             <Button
                 active={index !== null}
-                data-index={index}
-                onClick={(e) => addPlay(index!, Number(e.currentTarget.dataset.index))}
+                data-index={Status[label as keyof typeof Status]}
+                onClick={(e) => togglePlay(Status[label as keyof typeof Status], Number(e.currentTarget.dataset.index))}
                 variant="primary"
             >
-                {label === 'Wishlist' ?
+                {index !== null && label === Status[Status.Wishlist] ?
                     `${label}ed` :
-                    label === 'Backlog' ?
+                    index !== null && label === Status[Status.Backlog] ?
                         `${label}ged` :
                         index !== null ?
                             label :
