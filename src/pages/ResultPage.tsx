@@ -70,6 +70,7 @@ function ResultPage() {
     if (playQueryData && !playQueryData.message) {
       if (!activeIndexRunOnce) {
         // this update only needs to happen once after page load
+        // otherwise it messes with subsequent play query updates
         setActiveIndex(playQueryData.status);
         setActiveIndexRunOnce(true);
       }
