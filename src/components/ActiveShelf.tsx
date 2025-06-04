@@ -4,6 +4,7 @@ import { Table } from "react-bootstrap";
 import { useEffect } from "react";
 import { useGetPlaysByUserIdQuery } from "../slices/playsApiSlice";
 import { useSelector } from "react-redux";
+import Loader from "./Loader";
 import type { PlayData } from "../types/PlayTypes";
 
 type Props = {
@@ -15,6 +16,7 @@ function Shelf({ status }: Props) {
 
     const {
         data: playQueryData,
+        isLoading,
         refetch: refetchPlayQueryData
     } = useGetPlaysByUserIdQuery(userInfo.id, { skip: !userInfo });
 
@@ -71,7 +73,7 @@ function Shelf({ status }: Props) {
                 </Table>
             ) : (
                 <div className="d-flex align-items-center justify-content-center w-100">
-                    <p className="m-0">Empty shelf.</p>
+                    {isLoading ? <Loader /> : <p className="m-0">Empty shelf.</p>}
                 </div>
             )}
         </>
