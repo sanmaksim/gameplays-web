@@ -48,7 +48,6 @@ function ResultPage() {
 
   // active tracker for buttons
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
-  const [activeIndexRunOnce, setActiveIndexRunOnce] = useState<boolean>(false);
   const [buttonLabel, setButtonLabel] = useState<string>(Status[Status.Wishlist]);
 
   // modal dialog control
@@ -66,19 +65,11 @@ function ResultPage() {
 
   // update active button
   useEffect(() => {
-    // ensure returned data is a play object before updating status
-    if (playQueryData && !playQueryData.message) {
-      if (!activeIndexRunOnce) {
-        // this update only needs to happen once after page load
-        // otherwise it messes with subsequent play query updates
-        setActiveIndex(playQueryData.status);
-        setActiveIndexRunOnce(true);
-      }
-      if (activeIndex !== null) {
-        setButtonLabel(Status[playQueryData.status]);
-      }
+    if (playQueryData && playQueryData.status !== undefined) {
+      setActiveIndex(playQueryData.status);
+      setButtonLabel(Status[playQueryData.status]);
     }
-  }, [activeIndex, playQueryData]);
+  }, [playQueryData]);
 
   const handleTogglePlay = async (statusValue: Status, buttonIndex: number): Promise<void> => {
     const payload: PlayPayload = {
