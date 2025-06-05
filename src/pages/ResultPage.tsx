@@ -29,8 +29,8 @@ function ResultPage() {
   // destructure play query result
   const {
     data: playQueryData, 
-    // isLoading: playQueryIsLoading, 
-    // error: playQueryError
+    //isLoading: playQueryIsLoading, 
+    //error: playQueryError
   } = useGetPlaysByGameIdQuery(gameId!, { skip: !userInfo });
 
   // get rtk mutation trigger functions
@@ -49,6 +49,8 @@ function ResultPage() {
   // active tracker for buttons
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
   const [buttonLabel, setButtonLabel] = useState<string>(Status[Status.Wishlist]);
+
+  const [loading, setLoading] = useState<boolean>(false);
 
   // modal dialog control
   const [showModal, setShowModal] = useState(false);
@@ -77,8 +79,8 @@ function ResultPage() {
       gameId: gameId!,
       status: statusValue
     };
-    
-    // add/remove play based on active/inactive button status
+    setLoading(true);
+    // add/remove play based on active/inactive button state
     if (activeIndex !== statusValue) {
       try {
         const response = await addPlay(payload).unwrap();
@@ -86,12 +88,14 @@ function ResultPage() {
           throw new Error('Error adding play.');
         }
         toast.success(response.message);
-        // set the main button to the updated shelf/label
+        // set the main button to the selected label
         setActiveIndex(buttonIndex);
         setButtonLabel(Status[buttonIndex]);
       } catch (error) {
         toast.error("Failed to add play.");
         console.error(error);
+      } finally {
+        setLoading(false);
       }
     } else {
       try {
@@ -101,7 +105,7 @@ function ResultPage() {
             throw new Error('Error removing from shelf.');
           }
           toast.success(response.message);
-          // reset the main button back to the default
+          // reset the main button back to the unselected/default 'wishlist' label
           setActiveIndex(null);
           setButtonLabel(Status[Status.Wishlist]);
         } else {
@@ -114,6 +118,8 @@ function ResultPage() {
           toast.error("Failed to remove game.");
           console.error(error);
         }
+      } finally {
+        setLoading(false);
       }
     }
   };
@@ -160,7 +166,13 @@ function ResultPage() {
               {userInfo ? (
                 <>
                   <Card.Text as={"div"}>
-                    <ActiveButton index={activeIndex} label={buttonLabel} togglePlay={handleTogglePlay} showModal={handleShowModal}></ActiveButton>
+                    <ActiveButton
+                      index={activeIndex}
+                      label={buttonLabel}
+                      loader={loading}
+                      togglePlay={handleTogglePlay}
+                      showModal={handleShowModal}
+                    />
                   </Card.Text>
 
                   <Modal centered show={showModal} onHide={handleCloseModal}>
@@ -175,7 +187,12 @@ function ResultPage() {
                         onClick={(e) => handleTogglePlay(Status.Playing, Number(e.currentTarget.dataset.index))}
                         variant="outline-primary"
                       >
-                        {activeIndex === Status.Playing ? Status[Status.Playing] : `Add to ${Status[Status.Playing]}`}
+                        {loading && activeIndex === Status.Playing ?
+                          <Loader /> :
+                            activeIndex === Status.Playing ?
+                              Status[Status.Playing] :
+                                `Add to ${Status[Status.Playing]}`
+                        }
                       </Button>
                       <Button
                         active={activeIndex === Status.Played}
@@ -184,7 +201,12 @@ function ResultPage() {
                         onClick={(e) => handleTogglePlay(Status.Played, Number(e.currentTarget.dataset.index))}
                         variant="outline-primary"
                       >
-                        {activeIndex === Status.Played ? Status[Status.Played] : `Add to ${Status[Status.Played]}`}
+                        {loading && activeIndex === Status.Played ?
+                          <Loader /> :
+                            activeIndex === Status.Played ?
+                              Status[Status.Played] :
+                                `Add to ${Status[Status.Played]}`
+                        }
                       </Button>
                       <Button
                         active={activeIndex === Status.Wishlist}
@@ -193,7 +215,12 @@ function ResultPage() {
                         onClick={(e) => handleTogglePlay(Status.Wishlist, Number(e.currentTarget.dataset.index))}
                         variant="outline-primary"
                       >
-                        {activeIndex === Status.Wishlist ? `${Status[Status.Wishlist]}ed` : `Add to ${Status[Status.Wishlist]}`}
+                        {loading && activeIndex === Status.Wishlist ?
+                          <Loader /> :
+                            activeIndex === Status.Wishlist ?
+                              `${Status[Status.Wishlist]}ed` :
+                                `Add to ${Status[Status.Wishlist]}`
+                        }
                       </Button>
                       <Button
                         active={activeIndex === Status.Backlog}
@@ -202,7 +229,12 @@ function ResultPage() {
                         onClick={(e) => handleTogglePlay(Status.Backlog, Number(e.currentTarget.dataset.index))}
                         variant="outline-primary"
                       >
-                        {activeIndex === Status.Backlog ? `${Status[Status.Backlog]}ged` : `Add to ${Status[Status.Backlog]}`}
+                        {loading && activeIndex === Status.Backlog ?
+                          <Loader /> :
+                            activeIndex === Status.Backlog ?
+                              `${Status[Status.Backlog]}ged` :
+                                `Add to ${Status[Status.Backlog]}`
+                        }
                       </Button>
                     </Modal.Body>
                   </Modal>
