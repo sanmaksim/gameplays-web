@@ -139,7 +139,12 @@ function ResultPage() {
       {gameQueryData && (
         <Card className="my-2">
           <Card.Body className="d-flex">
-            {gameQueryData.results.image && <img src={gameQueryData.results.image.small_url} alt={gameQueryData.results.name} />}
+            {gameQueryData.results.image && 
+              <img
+                alt={gameQueryData.results.name}
+                src={gameQueryData.results.image.small_url}
+              />
+            }
             <div className="d-flex flex-column mx-2">
 
               {/* Game info */}
