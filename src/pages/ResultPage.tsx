@@ -143,29 +143,15 @@ function ResultPage() {
               <img
                 alt={gameQueryData.results.name}
                 src={gameQueryData.results.image.small_url}
+                width="250px"
               />
             }
             <div className="d-flex flex-column mx-2">
 
               {/* Game info */}
-              <Card.Title>{gameQueryData.results.name}</Card.Title>
+              <Card.Title className="display-3 fw-bold">{gameQueryData.results.name}</Card.Title>
               <Card.Subtitle className="mb-2 text-muted">Release Date: {formattedDate!}</Card.Subtitle>
-              <Card.Text>{gameQueryData.results.deck}</Card.Text>
-
-              {/* Game details */}
-              {gameEntities.map((gameEntity, index) => (
-                <Fragment key={index}>
-                  <Card.Title>
-                    {gameEntity.content && gameEntity.content.length > 1 ? (<>{gameEntity.heading + "s"}</>) : (<>{gameEntity.heading}</>)}
-                  </Card.Title>
-                  {gameEntity.content && gameEntity.content.map((entity: any) => (
-                    <li key={entity.id} style={{ listStyle: 'none' }}>
-                      {entity.name}
-                    </li>
-                  ))}
-                  <Card.Text></Card.Text>
-                </Fragment>
-              ))}
+              <Card.Text className="lead">{gameQueryData.results.deck}</Card.Text>
 
               {/* User list control */}
               {userInfo ? (
@@ -248,6 +234,22 @@ function ResultPage() {
                 <></>
               )}
             </div>
+          </Card.Body>
+          <Card.Body>
+            {/* Game details */}
+            {gameEntities.map((gameEntity, index) => (
+              <Fragment key={index}>
+                <Card.Title>
+                  {gameEntity.content && gameEntity.content.length > 1 ? (<>{gameEntity.heading + "s"}</>) : (<>{gameEntity.heading}</>)}
+                </Card.Title>
+                {gameEntity.content && gameEntity.content.map((entity: any) => (
+                  <li key={entity.id} style={{ listStyle: 'none' }}>
+                    {entity.name}
+                  </li>
+                ))}
+                <Card.Text></Card.Text>
+              </Fragment>
+            ))}
           </Card.Body>
         </Card>
       )}
