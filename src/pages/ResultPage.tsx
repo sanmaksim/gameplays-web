@@ -1,4 +1,4 @@
-import { Button, Card, Container, Modal } from "react-bootstrap";
+import { Button, Card, Col, Container, Modal, Row } from "react-bootstrap";
 import { Fragment } from "react/jsx-runtime";
 import { RootState } from "../store";
 import { Status } from "../types/PlayTypes";
@@ -137,123 +137,137 @@ function ResultPage() {
         </p>
       )}
       {gameQueryData && (
-        <Container>
+        <>
           <Card>
-            <Card.Body className="d-flex bg-dark">
-              {gameQueryData.results.image && 
-                <img
-                  alt={gameQueryData.results.name}
-                  src={gameQueryData.results.image.small_url}
-                  width="250px"
-                />
-              }
-              <div className="d-flex flex-column mx-2">
+            <Card.Body className="bg-dark">
+              <Row>
+                <Col xs={12} md={4} lg={3} xxl={2}>
+                  <div>
+                  {gameQueryData.results.image && 
+                    <img
+                      alt={gameQueryData.results.name}
+                      className="img-fluid w-100"
+                      src={gameQueryData.results.image.small_url}
+                      style={{ minWidth: "200px" }}
+                    />
+                  }
+                  </div>
+                </Col>
+                <Col xs={12} md={8} lg={9} xxl={10}>
+                  <div className="d-flex flex-column h-100">
+                  {/* Game info */}
+                  <Card.Title className="display-3 fw-bold text-light">{gameQueryData.results.name}</Card.Title>
+                  <Card.Subtitle className="text-white-50">Release Date: {formattedDate!}</Card.Subtitle>
+                  <Card.Text className="lead text-white mt-1">{gameQueryData.results.deck}</Card.Text>
 
-                {/* Game info */}
-                <Card.Title className="display-3 fw-bold text-light">{gameQueryData.results.name}</Card.Title>
-                <Card.Subtitle className="mb-2 text-white-50">Release Date: {formattedDate!}</Card.Subtitle>
-                <Card.Text className="lead text-white">{gameQueryData.results.deck}</Card.Text>
+                  {/* User list control */}
+                  {userInfo ? (
+                    <>
+                      <Card.Text as={"div"} className="mt-auto">
+                        <ActiveButton
+                          index={activeIndex}
+                          label={buttonLabel}
+                          loader={loading}
+                          togglePlay={handleTogglePlay}
+                          showModal={handleShowModal}
+                        />
+                      </Card.Text>
 
-                {/* User list control */}
-                {userInfo ? (
-                  <>
-                    <Card.Text as={"div"}>
-                      <ActiveButton
-                        index={activeIndex}
-                        label={buttonLabel}
-                        loader={loading}
-                        togglePlay={handleTogglePlay}
-                        showModal={handleShowModal}
-                      />
-                    </Card.Text>
-
-                    <Modal centered show={showModal} onHide={handleCloseModal}>
-                      <Modal.Header closeButton>
-                          <Modal.Title>Choose a shelf for this game</Modal.Title>
-                      </Modal.Header>
-                      <Modal.Body className="d-flex flex-column align-items-center justify-content-center mb-2">
-                        <Button
-                          active={activeIndex === Status.Playing}
-                          className="w-50 mb-3"
-                          data-index={Status.Playing}
-                          onClick={(e) => handleTogglePlay(Status.Playing, Number(e.currentTarget.dataset.index))}
-                          variant="outline-primary"
-                        >
-                          {loading && activeIndex === Status.Playing ?
-                            <Loader /> :
-                              activeIndex === Status.Playing ?
-                                Status[Status.Playing] :
-                                  `Add to ${Status[Status.Playing]}`
-                          }
-                        </Button>
-                        <Button
-                          active={activeIndex === Status.Played}
-                          className="w-50 mb-3"
-                          data-index={Status.Played}
-                          onClick={(e) => handleTogglePlay(Status.Played, Number(e.currentTarget.dataset.index))}
-                          variant="outline-primary"
-                        >
-                          {loading && activeIndex === Status.Played ?
-                            <Loader /> :
-                              activeIndex === Status.Played ?
-                                Status[Status.Played] :
-                                  `Add to ${Status[Status.Played]}`
-                          }
-                        </Button>
-                        <Button
-                          active={activeIndex === Status.Wishlist}
-                          className="w-50 mb-3"
-                          data-index={Status.Wishlist}
-                          onClick={(e) => handleTogglePlay(Status.Wishlist, Number(e.currentTarget.dataset.index))}
-                          variant="outline-primary"
-                        >
-                          {loading && activeIndex === Status.Wishlist ?
-                            <Loader /> :
-                              activeIndex === Status.Wishlist ?
-                                `${Status[Status.Wishlist]}ed` :
-                                  `Add to ${Status[Status.Wishlist]}`
-                          }
-                        </Button>
-                        <Button
-                          active={activeIndex === Status.Backlog}
-                          className="w-50"
-                          data-index={Status.Backlog}
-                          onClick={(e) => handleTogglePlay(Status.Backlog, Number(e.currentTarget.dataset.index))}
-                          variant="outline-primary"
-                        >
-                          {loading && activeIndex === Status.Backlog ?
-                            <Loader /> :
-                              activeIndex === Status.Backlog ?
-                                `${Status[Status.Backlog]}ged` :
-                                  `Add to ${Status[Status.Backlog]}`
-                          }
-                        </Button>
-                      </Modal.Body>
-                    </Modal>
-                  </>
-                ) : (
-                  <></>
-                )}
-              </div>
+                      <Modal centered show={showModal} onHide={handleCloseModal}>
+                        <Modal.Header closeButton>
+                            <Modal.Title>Choose a shelf for this game</Modal.Title>
+                        </Modal.Header>
+                        <Modal.Body className="d-flex flex-column align-items-center justify-content-center mb-2">
+                          <Button
+                            active={activeIndex === Status.Playing}
+                            className="w-50 mb-3"
+                            data-index={Status.Playing}
+                            onClick={(e) => handleTogglePlay(Status.Playing, Number(e.currentTarget.dataset.index))}
+                            variant="outline-primary"
+                          >
+                            {loading && activeIndex === Status.Playing ?
+                              <Loader /> :
+                                activeIndex === Status.Playing ?
+                                  Status[Status.Playing] :
+                                    `Add to ${Status[Status.Playing]}`
+                            }
+                          </Button>
+                          <Button
+                            active={activeIndex === Status.Played}
+                            className="w-50 mb-3"
+                            data-index={Status.Played}
+                            onClick={(e) => handleTogglePlay(Status.Played, Number(e.currentTarget.dataset.index))}
+                            variant="outline-primary"
+                          >
+                            {loading && activeIndex === Status.Played ?
+                              <Loader /> :
+                                activeIndex === Status.Played ?
+                                  Status[Status.Played] :
+                                    `Add to ${Status[Status.Played]}`
+                            }
+                          </Button>
+                          <Button
+                            active={activeIndex === Status.Wishlist}
+                            className="w-50 mb-3"
+                            data-index={Status.Wishlist}
+                            onClick={(e) => handleTogglePlay(Status.Wishlist, Number(e.currentTarget.dataset.index))}
+                            variant="outline-primary"
+                          >
+                            {loading && activeIndex === Status.Wishlist ?
+                              <Loader /> :
+                                activeIndex === Status.Wishlist ?
+                                  `${Status[Status.Wishlist]}ed` :
+                                    `Add to ${Status[Status.Wishlist]}`
+                            }
+                          </Button>
+                          <Button
+                            active={activeIndex === Status.Backlog}
+                            className="w-50"
+                            data-index={Status.Backlog}
+                            onClick={(e) => handleTogglePlay(Status.Backlog, Number(e.currentTarget.dataset.index))}
+                            variant="outline-primary"
+                          >
+                            {loading && activeIndex === Status.Backlog ?
+                              <Loader /> :
+                                activeIndex === Status.Backlog ?
+                                  `${Status[Status.Backlog]}ged` :
+                                    `Add to ${Status[Status.Backlog]}`
+                            }
+                          </Button>
+                        </Modal.Body>
+                      </Modal>
+                    </>
+                  ) : (
+                    <></>
+                  )}
+                  </div>
+                </Col>
+              </Row>
             </Card.Body>
           </Card>
-          <Card.Body className="m-2">
-            {/* Game details */}
-            {gameEntities.map((gameEntity, index) => (
-              <Fragment key={index}>
-                <Card.Title>
-                  {gameEntity.content && gameEntity.content.length > 1 ? (<>{gameEntity.heading + "s"}</>) : (<>{gameEntity.heading}</>)}
-                </Card.Title>
-                {gameEntity.content && gameEntity.content.map((entity: any) => (
-                  <li key={entity.id} style={{ listStyle: 'none' }}>
-                    {entity.name}
-                  </li>
-                ))}
-                <Card.Text></Card.Text>
-              </Fragment>
-            ))}
-          </Card.Body>
-        </Container>
+          <Card className="border-0">
+            <Card.Body>
+              <Row>
+                <Col>
+                  {/* Game details */}
+                  {gameEntities.map((gameEntity, index) => (
+                    <Fragment key={index}>
+                      <Card.Title>
+                        {gameEntity.content && gameEntity.content.length > 1 ? (<>{gameEntity.heading + "s"}</>) : (<>{gameEntity.heading}</>)}
+                      </Card.Title>
+                      {gameEntity.content && gameEntity.content.map((entity: any) => (
+                        <li key={entity.id} style={{ listStyle: 'none' }}>
+                          {entity.name}
+                        </li>
+                      ))}
+                      <Card.Text></Card.Text>
+                    </Fragment>
+                  ))}
+                </Col>
+              </Row>
+            </Card.Body>
+          </Card>
+        </>
       )}
     </Container>
   )
