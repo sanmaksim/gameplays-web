@@ -23,10 +23,20 @@ export interface PlayData {
     api_game_id?: number
 }
 
-export interface PlayPayload {
-    userId: number,
-    gameId: string,
-    status: Status
+export interface AddPlayPayload {
+    userId?: string,
+    gameId?: string,
+    status?: Status
+}
+
+export interface DeletePlayPayload {
+    userId?: string,
+    playId?: string
+}
+
+export interface GetPlayPayload {
+    userId?: string,
+    gameId?: string
 }
 
 export interface PlayStatusItem {
