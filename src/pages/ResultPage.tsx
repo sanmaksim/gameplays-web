@@ -2,14 +2,22 @@ import { Button, Card, Col, Container, Modal, Row, Table } from "react-bootstrap
 import { RootState } from "../store";
 import { Status } from "../types/PlayTypes";
 import { toast } from "react-toastify";
-import { useAddPlayMutation, useDeletePlayMutation, useGetPlaysByGameIdQuery } from "../slices/playsApiSlice";
+import {
+  useAddPlayMutation,
+  useDeletePlayMutation,
+  useGetPlayByUserAndGameIdQuery
+} from "../slices/playsApiSlice";
 import { useGetGameQuery } from "../slices/gamesApiSlice";
 import { useParams } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { useEffect, useState } from "react";
 import ActiveButton from "../components/ActiveButton";
 import Loader from "../components/Loader";
-import type { PlayPayload } from "../types/PlayTypes";
+import type {
+  AddPlayPayload,
+  DeletePlayPayload,
+  GetPlayPayload
+} from "../types/PlayTypes";
 
 function ResultPage() {
   // get logged in user
@@ -17,6 +25,12 @@ function ResultPage() {
 
   // get current game ID from URL
   const { gameId } = useParams();
+
+  // data to get play by user and game ID
+  const getPlayPayload: GetPlayPayload = {
+    userId: userInfo.id.toString(),
+    gameId: gameId
+  }
 
   // destructure game query result
   const {
@@ -27,10 +41,13 @@ function ResultPage() {
 
   // destructure play query result
   const {
-    data: playQueryData, 
+    data: playQueryData,
     //isLoading: playQueryIsLoading, 
     //error: playQueryError
-  } = useGetPlaysByGameIdQuery(gameId!, { skip: !userInfo });
+  } = useGetPlayByUserAndGameIdQuery(
+    getPlayPayload,
+    { skip: !userInfo }
+  );
 
   // get rtk mutation trigger functions
   const [addPlay] = useAddPlayMutation();
@@ -73,16 +90,16 @@ function ResultPage() {
   }, [playQueryData]);
 
   const handleTogglePlay = async (statusValue: Status, buttonIndex: number): Promise<void> => {
-    const payload: PlayPayload = {
-      userId: userInfo.id,
-      gameId: gameId!,
-      status: statusValue
-    };
     setLoading(true);
     // add/remove play based on active/inactive button state
     if (activeIndex !== statusValue) {
       try {
-        const response = await addPlay(payload).unwrap();
+        const addPlayPayload: AddPlayPayload = {
+          userId: userInfo.id.toString(),
+          gameId: gameId,
+          status: statusValue
+        };
+        const response = await addPlay(addPlayPayload).unwrap();
         if (!response) {
           throw new Error('Error adding play.');
         }
@@ -99,7 +116,11 @@ function ResultPage() {
     } else {
       try {
         if (activeIndex === playQueryData.status) {
-          const response = await deletePlay(playQueryData.playId).unwrap();
+          const deletePlayPayload: DeletePlayPayload = {
+            userId: userInfo.id.toString(),
+            playId: playQueryData.playId
+          };
+          const response = await deletePlay(deletePlayPayload).unwrap();
           if (!response) {
             throw new Error('Error removing from shelf.');
           }
@@ -144,14 +165,14 @@ function ResultPage() {
                 {/* Game cover */}
                 <Col xs={12} md={4} lg={3} xxl={2}>
                   <div>
-                  {gameQueryData.results.image && 
-                    <img
-                      alt={gameQueryData.results.name}
-                      className="img-fluid w-100"
-                      src={gameQueryData.results.image.small_url}
-                      style={{ minWidth: "200px" }}
-                    />
-                  }
+                    {gameQueryData.results.image &&
+                      <img
+                        alt={gameQueryData.results.name}
+                        className="img-fluid w-100"
+                        src={gameQueryData.results.image.small_url}
+                        style={{ minWidth: "200px" }}
+                      />
+                    }
                   </div>
                 </Col>
 
@@ -178,7 +199,7 @@ function ResultPage() {
                         {/* User shelf modal */}
                         <Modal centered show={showModal} onHide={handleCloseModal}>
                           <Modal.Header closeButton>
-                              <Modal.Title>Choose a shelf for this game</Modal.Title>
+                            <Modal.Title>Choose a shelf for this game</Modal.Title>
                           </Modal.Header>
                           <Modal.Body className="d-flex flex-column align-items-center justify-content-center mb-2">
                             <Button
@@ -190,9 +211,9 @@ function ResultPage() {
                             >
                               {loading && activeIndex === Status.Playing ?
                                 <Loader /> :
-                                  activeIndex === Status.Playing ?
-                                    Status[Status.Playing] :
-                                      `Add to ${Status[Status.Playing]}`
+                                activeIndex === Status.Playing ?
+                                  Status[Status.Playing] :
+                                  `Add to ${Status[Status.Playing]}`
                               }
                             </Button>
                             <Button
@@ -204,9 +225,9 @@ function ResultPage() {
                             >
                               {loading && activeIndex === Status.Played ?
                                 <Loader /> :
-                                  activeIndex === Status.Played ?
-                                    Status[Status.Played] :
-                                      `Add to ${Status[Status.Played]}`
+                                activeIndex === Status.Played ?
+                                  Status[Status.Played] :
+                                  `Add to ${Status[Status.Played]}`
                               }
                             </Button>
                             <Button
@@ -218,9 +239,9 @@ function ResultPage() {
                             >
                               {loading && activeIndex === Status.Wishlist ?
                                 <Loader /> :
-                                  activeIndex === Status.Wishlist ?
-                                    `${Status[Status.Wishlist]}ed` :
-                                      `Add to ${Status[Status.Wishlist]}`
+                                activeIndex === Status.Wishlist ?
+                                  `${Status[Status.Wishlist]}ed` :
+                                  `Add to ${Status[Status.Wishlist]}`
                               }
                             </Button>
                             <Button
@@ -232,9 +253,9 @@ function ResultPage() {
                             >
                               {loading && activeIndex === Status.Backlog ?
                                 <Loader /> :
-                                  activeIndex === Status.Backlog ?
-                                    `${Status[Status.Backlog]}ged` :
-                                      `Add to ${Status[Status.Backlog]}`
+                                activeIndex === Status.Backlog ?
+                                  `${Status[Status.Backlog]}ged` :
+                                  `Add to ${Status[Status.Backlog]}`
                               }
                             </Button>
                           </Modal.Body>
