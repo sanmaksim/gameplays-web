@@ -1,14 +1,18 @@
 import { apiSlice } from "./apiSlice";
-import type { PlayPayload } from "../types/PlayTypes";
+import type {
+    AddPlayPayload,
+    DeletePlayPayload,
+    GetPlayPayload
+} from "../types/PlayTypes";
 
 const PLAYS_URL = '/api/plays';
 
 export const playsApiSlice = apiSlice.injectEndpoints({
     endpoints: (builder) => ({
-        getPlaysByGameId: builder.query({
-            query: (id: string) => {
+        getPlayByUserAndGameId: builder.query({
+            query: (data: GetPlayPayload) => {
                 return {
-                    url: `${PLAYS_URL}/game/${id}`,
+                    url: `${PLAYS_URL}/user/${data.userId}/game/${data.gameId}`,
                     method: 'GET',
                     credentials: 'include'
                 }
@@ -25,7 +29,7 @@ export const playsApiSlice = apiSlice.injectEndpoints({
             }
         }),
         addPlay: builder.mutation({
-            query: (data: PlayPayload) => {
+            query: (data: AddPlayPayload) => {
                 return {
                     url: `${PLAYS_URL}`,
                     method: 'POST',
@@ -39,9 +43,9 @@ export const playsApiSlice = apiSlice.injectEndpoints({
             invalidatesTags: ['Play'] // to auto refetch query
         }),
         deletePlay: builder.mutation({
-            query: (playId: number) => {
+            query: (data: DeletePlayPayload) => {
                 return {
-                    url: `${PLAYS_URL}/${playId}`,
+                    url: `${PLAYS_URL}/user/${data.userId}/play/${data.playId}`,
                     method: 'DELETE',
                     credentials: 'include'
                 }
@@ -51,9 +55,9 @@ export const playsApiSlice = apiSlice.injectEndpoints({
     })
 });
 
-export const { 
-    useGetPlaysByGameIdQuery, 
-    useGetPlaysByUserIdQuery, 
-    useAddPlayMutation, 
-    useDeletePlayMutation 
+export const {
+    useGetPlayByUserAndGameIdQuery,
+    useGetPlaysByUserIdQuery,
+    useAddPlayMutation,
+    useDeletePlayMutation
 } = playsApiSlice;
