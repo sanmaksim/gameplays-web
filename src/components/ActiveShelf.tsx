@@ -20,7 +20,11 @@ function Shelf({ status }: Props) {
         refetch: refetchPlayQueryData
     } = useGetPlaysByUserIdQuery(userInfo.id, { skip: !userInfo });
 
-    const hasStatus: boolean = playQueryData?.some((play: PlayData) => play.status === status) ?? false;
+    const hasStatus: boolean = (
+                                    Array.isArray(playQueryData) 
+                                    && playQueryData.some((play: PlayData) => play.status === status)
+                                )
+                                ?? false;
 
     useEffect(() => {
         refetchPlayQueryData()
