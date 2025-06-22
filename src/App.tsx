@@ -36,7 +36,7 @@ function App() {
         {/* Private Routes */}
         { userInfo ? (
           <Route path='' element={<PrivateRoute />}>
-            <Route path='/user/profile' element={<ProfilePage />} />
+            <Route path='/user/profile/:id' element={<ProfilePage />} />
             <Route path='/user/games' element={<GamesPage />} />
           </Route>
         ) : (

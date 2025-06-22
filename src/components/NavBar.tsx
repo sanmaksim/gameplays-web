@@ -87,7 +87,7 @@ function NavBar() {
                             </Navbar.Toggle>
                         ) : (
                             <NavDropdown title={<img src={ProfileIcon} className="rounded-circle" alt="Profile Icon" width='40' height='40' />} align='end' style={{ color: 'white' }}>
-                                <NavDropdown.Item as={Link} to="/user/profile">Profile</NavDropdown.Item>
+                                <NavDropdown.Item as={Link} to={`/user/profile/${userInfo.id}`}>Profile</NavDropdown.Item>
                                 <NavDropdown.Item as={Link} to="/user/games">My Games</NavDropdown.Item>
                                 <NavDropdown.Item as={Link} to="/help">Help</NavDropdown.Item>
                                 <NavDropdown.Item onClick={handleLogout}>Logout</NavDropdown.Item>
