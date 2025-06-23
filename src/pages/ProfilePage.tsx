@@ -62,13 +62,39 @@ function ProfilePage() {
             toast.error('Passwords do not match.');
         } else {
             try {
-                const response = await updateUser(payload).unwrap();
-                dispatch(setCredentials(response));
+                // Do not unwrap the mutation since we need to
+                // test for which properties are present
+                const response = await updateUser(payload);
+                if (
+                    response.data 
+                    && response.data.id
+                    && response.data.username
+                    && response.data.email
+                ) {
+                    // Set user credentials if the response
+                    // contains the expected user data
+                    dispatch(setCredentials(response.data));
+                    toast.success("Changes saved.");
+                } else if (
+                    response.data
+                    && response.data.message
+                ) {
+                    // Display the message if that is all
+                    // that is returned by the response
+                    toast.success(response.data.message);
+                } else if (response.error) {
+                    // We need to extract a suitable message string
+                    // from the response before passing it to the toast
+                    const message = (response.error as any)?.data?.message
+                                    || (response.error as Error)?.message
+                                    || "An error occurred";
+                    toast.error(message);
+                }
+                // Always clear the password fields
                 setPwd('');
                 setConfirmPwd('');
-                toast.success("Changes saved.");
-            } catch (error: any) {
-                toast.error(error.data.message || "An error occurred.");
+            } catch (error) {
+                toast.error("An error occurred.");
             }
         }
     };
