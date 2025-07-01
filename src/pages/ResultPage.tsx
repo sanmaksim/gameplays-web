@@ -28,7 +28,7 @@ function ResultPage() {
 
   // data to get play by user and game ID
   const getPlayPayload: GetPlayPayload = {
-    userId: userInfo.id.toString(),
+    userId: userInfo?.id?.toString(),
     gameId: gameId
   }
 
@@ -95,7 +95,7 @@ function ResultPage() {
     if (activeIndex !== statusValue) {
       try {
         const addPlayPayload: AddPlayPayload = {
-          userId: userInfo.id.toString(),
+          userId: userInfo?.id?.toString(),
           gameId: gameId,
           status: statusValue
         };
@@ -117,7 +117,7 @@ function ResultPage() {
       try {
         if (activeIndex === playQueryData.status) {
           const deletePlayPayload: DeletePlayPayload = {
-            userId: userInfo.id.toString(),
+            userId: userInfo?.id?.toString(),
             playId: playQueryData.playId
           };
           const response = await deletePlay(deletePlayPayload).unwrap();
