@@ -1,5 +1,5 @@
 import { BaseQueryApi, createApi, FetchArgs, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
-import { clearCredentials } from "./authSlice";
+import { clearCredentials, setCredentials } from "./authSlice";
 
 let serverUrl = "";
 
@@ -38,6 +38,9 @@ const baseQueryWithReauth = async (args: string | FetchArgs, api: BaseQueryApi, 
             extraOptions
         );
         if (refreshResult.data) {
+            // Store the refreshed user data before retrying
+            api.dispatch(setCredentials(refreshResult.data));
+
             // Retry the original query
             result = await baseQuery(args, api, extraOptions);
         } else {
