@@ -5,7 +5,7 @@ import { RootState } from '../store';
 import { setCredentials } from '../slices/authSlice';
 import { toast } from 'react-toastify';
 import { useDispatch, useSelector } from 'react-redux';
-import { useLoginMutation } from '../slices/usersApiSlice';
+import { useLoginMutation } from '../slices/authApiSlice';
 import { useNavigate } from 'react-router-dom';
 import Button from 'react-bootstrap/esm/Button';
 import Card from 'react-bootstrap/esm/Card';
