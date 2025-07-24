@@ -5,7 +5,7 @@ import { setCredentials } from '../slices/authSlice';
 import { toast } from 'react-toastify';
 import { useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import { useRegisterMutation } from '../slices/usersApiSlice';
+import { useCreateUserMutation } from '../slices/usersApiSlice';
 import Button from 'react-bootstrap/esm/Button';
 import Card from 'react-bootstrap/esm/Card';
 import Form from 'react-bootstrap/esm/Form';
@@ -16,7 +16,7 @@ function RegisterPage() {
     const navigate = useNavigate();
     const dispatch = useDispatch();
 
-    const [register, { isLoading }] = useRegisterMutation();
+    const [register, { isLoading }] = useCreateUserMutation();
 
     const { userInfo } = useSelector((state: RootState) => state.auth);
 
