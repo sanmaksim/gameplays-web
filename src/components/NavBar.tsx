@@ -7,7 +7,7 @@ import { PageContext } from '../contexts/PageContext';
 import { RootState } from '../store';
 import { toast } from 'react-toastify';
 import { useContext, useEffect, useState } from 'react';
-import { useLogoutMutation } from '../slices/usersApiSlice';
+import { useLogoutMutation } from '../slices/authApiSlice';
 import { useSelector, useDispatch } from 'react-redux';
 import Nav from 'react-bootstrap/Nav';
 import Navbar from 'react-bootstrap/Navbar';

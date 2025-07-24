@@ -1,6 +1,7 @@
 import { BaseQueryApi, createApi, FetchArgs, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import { clearCredentials, setCredentials } from "./authSlice";
 
+const apiAuthV1 = '/api/v1/auth';
 let serverUrl = "";
 
 if (process.env.NODE_ENV === 'development') {
@@ -30,7 +31,7 @@ const baseQueryWithReauth = async (args: string | FetchArgs, api: BaseQueryApi, 
         // Attempt to refresh token
         const refreshResult = await baseQuery(
             {
-                url: '/api/v1/auth/refresh',
+                url: `${apiAuthV1}/refresh`,
                 method: 'POST',
                 credentials: 'include'
             },
@@ -45,7 +46,7 @@ const baseQueryWithReauth = async (args: string | FetchArgs, api: BaseQueryApi, 
             result = await baseQuery(args, api, extraOptions);
         } else {
             // logout the user
-            await fetch('/api/users/logout',
+            await fetch(`${apiAuthV1}/logout`,
             {
                 method: 'POST',
                 credentials: 'include'
