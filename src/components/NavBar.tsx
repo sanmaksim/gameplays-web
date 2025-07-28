@@ -58,7 +58,8 @@ function NavBar() {
             navigate('/');
             toast.success(response.message);
         } catch (error: any) {
-            toast.error(error.data.message);
+            toast.error(error.data.message || "An error occurred.");
+            console.error(error);
         }
     };
 
