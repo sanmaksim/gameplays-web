@@ -2,13 +2,13 @@ import { Container, ListGroup } from "react-bootstrap";
 import { Link, useSearchParams } from "react-router-dom";
 import { toast } from "react-toastify";
 import { useQuery } from "@tanstack/react-query";
-import { useSearchMutation } from "../slices/gamesApiSlice";
+import { useLazySearchQuery } from "../slices/gamesApiSlice";
 import Loader from "../components/Loader";
 import Paginator from "../components/Paginator";
 import type { GameSearchResult, GameSearchResults } from "../types/GameTypes";
 
 function SearchPage() {
-    const [search] = useSearchMutation();
+    const [triggerSearchQuery] = useLazySearchQuery();
 
     const [searchParams] = useSearchParams();
     const searchTerm = searchParams.get('q') || '';
@@ -22,21 +22,15 @@ function SearchPage() {
             if (pageString) {
                 queryParams.page = pageString;
             }
-            // dispatch the query via redux
-            const response = await search({ queryParams: queryParams, limit: "20" }).unwrap();
-            return response;
+            const searchQueryData: GameSearchResults = await triggerSearchQuery({ queryParams: queryParams, limit: "20" }).unwrap();
+            if (!searchQueryData) {
+                throw new Error('Error returning game data.');
+            }
+            return searchQueryData;
         } catch (error: any) {
             toast.error('Failed to fetch game data.');
             console.error(error);
-            return {
-                error: `${error}`,
-                limit: 0,
-                offset: 0,
-                number_of_page_results: 0,
-                number_of_total_results: 0,
-                status_code: 0,
-                results: []
-            }
+            return {}
         }
     };
 
