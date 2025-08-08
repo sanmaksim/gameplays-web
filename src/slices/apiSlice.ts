@@ -26,7 +26,7 @@ const baseQuery = fetchBaseQuery({ baseUrl: serverUrl });
  */
 const baseQueryWithReauth = async (args: string | FetchArgs, api: BaseQueryApi, extraOptions: {}) => {
     let result = await baseQuery(args, api, extraOptions);
-
+    // TODO: handle logout so that client displays logout msg and doesn't redirect to /logout
     if (result.error && result.error.status === 401) {
         // Attempt to refresh token
         const refreshResult = await baseQuery(
@@ -62,6 +62,6 @@ const baseQueryWithReauth = async (args: string | FetchArgs, api: BaseQueryApi, 
 
 export const apiSlice = createApi({
     baseQuery: baseQueryWithReauth,
-    tagTypes: ['Game', 'User', 'Play'],
+    tagTypes: ['Play'],
     endpoints: () => ({})
 });
