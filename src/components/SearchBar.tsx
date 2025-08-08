@@ -9,6 +9,7 @@ import {
 import { CSSProperties, KeyboardEvent, useEffect, useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
+import { useLazySearchQuery } from '../slices/gamesApiSlice';
 import AsyncSelect from 'react-select/async';
 import debounce from 'lodash.debounce';
 import type { GameSearchResult, GameSearchResults } from '../types/GameTypes';
@@ -33,12 +34,12 @@ function SearchBar() {
     // track a list of AsyncSelect options
     const [options, setOptions] = useState<Options>([]);
 
-    // track returned results object
-    let [searchResults, setSearchResults] = useState<GameSearchResults>({});
-
     // initialize ref object with the 'current' property set to null
     // ref selection is required for AsyncSelect's blur() and clearValue() methods
     const selectRef = useRef<SelectInstance<Option, boolean> | null>(null);
+
+    // Setup game search query trigger
+    const [triggerSearchQuery] = useLazySearchQuery();
 
     // run post-render effects
     useEffect(() => {
@@ -93,32 +94,11 @@ function SearchBar() {
         }
     };
 
-    // get search results
-    const fetchGameData = async (inputString: string): Promise<GameSearchResults> => {
-        try {
-            // proxy search query via server API (GiantBomb blocks client API calls)
-            const response = await fetch(`https://localhost:5001/api/games/search?q=${encodeURIComponent(inputString)}`);
-            if (!response.ok) {
-                throw new Error(`Error: ${response.statusText}`);
-            }
-            const data = await response.json();
-            setSearchResults(data);
-            return data;
-        } catch (error: unknown) {
-            if (error instanceof Error) {
-                toast.error('Failed to fetch game data.');
-                console.error(error);
-            } else {
-                toast.error('Uknown error occurred.');
-                console.error(error);
-            }
-            return searchResults;
-        }
-    };
-
-    // convert debounced game data into AsyncSelect options
-    // use useRef to ensure debounce timer does not reset each time 
-    // the inputString is updated and the component re-rendered
+    /**
+     * Function that converts debounced game results into AsyncSelect options
+     * - Leverage useRef to ensure the debounce timer does not reset each 
+     *   time the input string is updated and the component re-rendered
+     */
     const debouncedFetchGameData = useRef(
         debounce(async (inputString: string, callback: (options: Options) => void): Promise<void> => {
             try {
@@ -126,24 +106,28 @@ function SearchBar() {
                     callback([]); // clear options
                     return; // prevent API call
                 }
-                
-                const searchResults = await fetchGameData(inputString);
-                if (!searchResults) {
+                console.log("Input Value: ", inputString);
+                // Trigger the game search query
+                const searchQueryData: GameSearchResults = await triggerSearchQuery({
+                    queryParams: { q: encodeURIComponent(inputString) }
+                }).unwrap();
+                if (!searchQueryData) {
                     throw new Error('Error returning game data.');
                 }
-
+                
+                // Pre-populate the options array for use with react-select
                 let searchOptions: Options;
-                if ('results' in searchResults
-                    && searchResults.results !== undefined) {
-                    // map returned search results to options
-                    searchOptions = searchResults.results.map((result) => ({
+                if (searchQueryData
+                    && searchQueryData.results !== undefined) {
+                    // Copy each search result into the options array
+                    searchOptions = searchQueryData.results.map((result: GameSearchResult) => ({
                         ...result,
                         isDivider: true,
                         label: result.name,
                         url: `/game/${result.id}`
                     }));
 
-                    // Add "Show more results" to options list
+                    // Add "Show more results" to the options list
                     searchOptions.push({
                         isDivider: false,
                         label: "Show more results...",
