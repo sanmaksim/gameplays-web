@@ -18,17 +18,17 @@ const baseQuery = fetchBaseQuery({ baseUrl: serverUrl });
  * On every API request, this function wraps fetchBaseQuery and checks for a 401 Unauthorized error.
  * If a 401 is detected, it attempts to refresh the user's authentication (by calling the refresh endpoint).
  * - If the refresh succeeds, the original request is automatically retried once.
- * - If the refresh fails (e.g., refresh token is expired), it logs out the user,
- *   clears credentials from Redux state, and redirects to the login page.
+ * - If the refresh fails due to invalid user credentials then simply continue with the request.
+ * - Otherwise, if the refresh fails for any other reason (e.g., refresh token is expired), 
+ *   it logs out the user, clears credentials from Redux state, and redirects to the login page.
  *
  * This centralizes authentication and token refresh logic, ensuring all endpoints
  * in the API slice benefit from robust, consistent error handling.
  */
 const baseQueryWithReauth = async (args: string | FetchArgs, api: BaseQueryApi, extraOptions: {}) => {
     let result = await baseQuery(args, api, extraOptions);
-    // TODO: handle logout so that client displays logout msg and doesn't redirect to /logout
     if (result.error && result.error.status === 401) {
-        // Attempt to refresh token
+        // Attempt to refresh both access & refresh tokens
         const refreshResult = await baseQuery(
             {
                 url: `${apiAuthV1}/refresh`,
@@ -41,19 +41,25 @@ const baseQueryWithReauth = async (args: string | FetchArgs, api: BaseQueryApi, 
         if (refreshResult.data) {
             // Store the refreshed user data before retrying
             api.dispatch(setCredentials(refreshResult.data));
-
             // Retry the original query
             result = await baseQuery(args, api, extraOptions);
+        } else if (result.error.data
+            && typeof result.error.data === 'object'
+            && 'message' in result.error.data
+            && result.error.data.message === 'Invalid username or password.') {
+                // Simply return the original result 
+                // in the case of invalid credentials
+                return result;
         } else {
-            // logout the user
+            // Otherwise logout the user
             await fetch(`${apiAuthV1}/logout`,
             {
                 method: 'POST',
                 credentials: 'include'
             });
-            // dispatch the clear credentials reducer
+            // Clear user credentials
             api.dispatch(clearCredentials());
-            // redirect to the login page
+            // Redirect user back to login
             window.location.href = '/login';
         }
     }
