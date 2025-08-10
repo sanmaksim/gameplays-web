@@ -18,8 +18,8 @@ const baseQuery = fetchBaseQuery({ baseUrl: serverUrl });
  * On every API request, this function wraps fetchBaseQuery and checks for a 401 Unauthorized error.
  * If a 401 is detected, it attempts to refresh the user's authentication (by calling the refresh endpoint).
  * - If the refresh succeeds, the original request is automatically retried once.
- * - If the refresh fails due to invalid user credentials then simply continue with the request.
- * - Otherwise, if the refresh fails for any other reason (e.g., refresh token is expired), 
+ * - If the refresh fails with an error message (e.g. invalid credentials) then simply continue with the request.
+ * - Otherwise, if the refresh fails without an error message (e.g., refresh token is expired), 
  *   it logs out the user, clears credentials from Redux state, and redirects to the login page.
  *
  * This centralizes authentication and token refresh logic, ensuring all endpoints
@@ -45,8 +45,7 @@ const baseQueryWithReauth = async (args: string | FetchArgs, api: BaseQueryApi, 
             result = await baseQuery(args, api, extraOptions);
         } else if (result.error.data
             && typeof result.error.data === 'object'
-            && 'message' in result.error.data
-            && result.error.data.message === 'Invalid username or password.') {
+            && 'message' in result.error.data) {
                 // Simply return the original result 
                 // in the case of invalid credentials
                 return result;
