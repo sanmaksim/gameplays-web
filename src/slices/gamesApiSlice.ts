@@ -1,7 +1,7 @@
 import { apiSlice } from "./apiSlice";
 import type { GameSearchParams } from "../types/GameTypes";
 
-const GAMES_URL = '/api/v1/games';
+const GAMES_URL = '/api/games';
 
 export const gamesApiSlice = apiSlice.injectEndpoints({
     endpoints: (builder) => ({
