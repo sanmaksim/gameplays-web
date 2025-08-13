@@ -20,7 +20,7 @@ export const playsApiSlice = apiSlice.injectEndpoints({
             providesTags: ['Play']
         }),
         getPlaysByUserId: builder.query({
-            query: (id: string) => {
+            query: (id: number) => {
                 return {
                     url: `${PLAYS_URL}/user/${id}`,
                     method: 'GET',
