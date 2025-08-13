@@ -101,7 +101,7 @@ function ProfilePage() {
 
     const deleteUserHandler = async () => {
         try {
-            const response = await deleteUser('').unwrap();
+            const response = await deleteUser(userInfo.id).unwrap();
             dispatch(clearCredentials());
             navigate('/');
             toast.success(response.message);

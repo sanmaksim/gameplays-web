@@ -1,3 +1,4 @@
+import { CredentialPayload, UserPayload } from "../types/UserTypes";
 import { apiSlice } from "./apiSlice";
 
 const USERS_URL = '/api/users';
@@ -5,30 +6,30 @@ const USERS_URL = '/api/users';
 export const usersApiSlice = apiSlice.injectEndpoints({
     endpoints: (builder) => ({
         createUser: builder.mutation({
-            query: (data) => ({
+            query: (payload: CredentialPayload) => ({
                 url: `${USERS_URL}/register`,
                 method: 'POST',
                 credentials: 'include',
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: data
+                body: payload
             })
         }),
         updateUser: builder.mutation({
-            query: (data) => ({
-                url: `${USERS_URL}/profile/${data.userId}`,
+            query: (payload: UserPayload) => ({
+                url: `${USERS_URL}/profile/${payload.userId}`,
                 method: 'PUT',
                 credentials: 'include',
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: data
+                body: payload
             })
         }),
         deleteUser: builder.mutation({
-            query: () => ({
-                url: `${USERS_URL}/profile`,
+            query: (id: number) => ({
+                url: `${USERS_URL}/profile/${id}`,
                 method: 'DELETE',
                 credentials: 'include'
             })
