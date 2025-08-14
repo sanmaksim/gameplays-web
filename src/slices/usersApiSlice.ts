@@ -18,7 +18,7 @@ export const usersApiSlice = apiSlice.injectEndpoints({
         }),
         updateUser: builder.mutation({
             query: (payload: UserPayload) => ({
-                url: `${USERS_URL}/profile/${payload.userId}`,
+                url: `${USERS_URL}/${payload.userId}`,
                 method: 'PUT',
                 credentials: 'include',
                 headers: {
@@ -29,7 +29,7 @@ export const usersApiSlice = apiSlice.injectEndpoints({
         }),
         deleteUser: builder.mutation({
             query: (id: number) => ({
-                url: `${USERS_URL}/profile/${id}`,
+                url: `${USERS_URL}/${id}`,
                 method: 'DELETE',
                 credentials: 'include'
             })
