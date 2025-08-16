@@ -43,3 +43,10 @@ export interface PlayStatusItem {
     playId?: number,
     status?: Status
 }
+
+export interface PlayPayload {
+    userId?: number,
+    gameId?: number,
+    playId?: number,
+    statusId?: Status
+}
