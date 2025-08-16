@@ -2,10 +2,10 @@ import { Link } from "react-router-dom";
 import { RootState } from "../store";
 import { Table } from "react-bootstrap";
 import { useEffect } from "react";
-import { useGetPlaysByUserIdQuery } from "../slices/playsApiSlice";
+import { useGetPlaysQuery } from "../slices/playsApiSlice";
 import { useSelector } from "react-redux";
 import Loader from "./Loader";
-import type { PlayData } from "../types/PlayTypes";
+import type { PlayData, PlayPayload } from "../types/PlayTypes";
 
 type Props = {
     status: number
@@ -14,17 +14,16 @@ type Props = {
 function Shelf({ status }: Props) {
     const { userInfo } = useSelector((state: RootState) => state.auth);
 
+    const playStatus: PlayPayload = {
+        userId: userInfo.id,
+        statusId: status
+    }
+
     const {
         data: playQueryData,
         isLoading,
         refetch: refetchPlayQueryData
-    } = useGetPlaysByUserIdQuery(userInfo.id, { skip: !userInfo });
-
-    const hasStatus: boolean = (
-                                    Array.isArray(playQueryData) 
-                                    && playQueryData.some((play: PlayData) => play.status === status)
-                                )
-                                ?? false;
+    } = useGetPlaysQuery(playStatus, { skip: !userInfo });
 
     useEffect(() => {
         refetchPlayQueryData()
@@ -32,7 +31,7 @@ function Shelf({ status }: Props) {
     
     return (
         <>
-            {playQueryData && hasStatus ? (
+            {playQueryData ? (
                 <Table striped bordered hover>
                     <thead>
                         <tr>
@@ -47,31 +46,27 @@ function Shelf({ status }: Props) {
                     </thead>
                     <tbody>
                         {playQueryData.map((play: PlayData) => {
-                            if (play.status !== status) {
-                                return null
-                            } else {
-                                return (
-                                    <tr key={play.id}>
-                                        <td><Link to={`/game/${play.api_game_id}`}>{play.name}</Link></td>
-                                        <td>
-                                            <ul className="list-unstyled">
-                                                {play.developers && play.developers.map(dev =>
-                                                    dev ? (
-                                                        <li key={dev.id}>
-                                                            {dev.name}
-                                                        </li>
-                                                    ) : null
-                                                )}
-                                            </ul>
-                                        </td>
-                                        <td>{play.original_release_date}</td>
-                                        <td>{play.created_at}</td>
-                                        <td>{play.hours_played}</td>
-                                        <td>{play.percentage_completed}</td>
-                                        <td>{play.last_played_at}</td>
-                                    </tr>
-                                )
-                            }
+                            return (
+                                <tr key={play.id}>
+                                    <td><Link to={`/game/${play.api_game_id}`}>{play.name}</Link></td>
+                                    <td>
+                                        <ul className="list-unstyled">
+                                            {play.developers && play.developers.map(dev =>
+                                                dev ? (
+                                                    <li key={dev.id}>
+                                                        {dev.name}
+                                                    </li>
+                                                ) : null
+                                            )}
+                                        </ul>
+                                    </td>
+                                    <td>{play.original_release_date}</td>
+                                    <td>{play.created_at}</td>
+                                    <td>{play.hours_played}</td>
+                                    <td>{play.percentage_completed}</td>
+                                    <td>{play.last_played_at}</td>
+                                </tr>
+                            )
                         })}
                     </tbody>
                 </Table>
@@ -82,7 +77,6 @@ function Shelf({ status }: Props) {
             )}
         </>
     );
-
 }
 
 export default Shelf;
