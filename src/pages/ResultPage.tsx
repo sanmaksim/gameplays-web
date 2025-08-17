@@ -5,7 +5,7 @@ import { toast } from "react-toastify";
 import {
   useAddPlayMutation,
   useDeletePlayMutation,
-  useGetPlayByUserAndGameIdQuery
+  useGetPlaysQuery
 } from "../slices/playsApiSlice";
 import { useGetGameQuery } from "../slices/gamesApiSlice";
 import { useParams } from "react-router-dom";
@@ -16,7 +16,7 @@ import Loader from "../components/Loader";
 import type {
   AddPlayPayload,
   DeletePlayPayload,
-  GetPlayPayload
+  PlayPayload
 } from "../types/PlayTypes";
 
 function ResultPage() {
@@ -25,27 +25,26 @@ function ResultPage() {
 
   // get current game ID from URL
   const { gameId } = useParams();
+  const apiGameId: number = Number(gameId);
 
   // data to get play by user and game ID
-  const getPlayPayload: GetPlayPayload = {
-    userId: userInfo?.id?.toString(),
-    gameId: gameId
+  const playPayload: PlayPayload = {
+    userId: userInfo.id,
+    apiGameId: apiGameId
   }
 
-  // destructure game query result
+  // for displaying game data
   const {
     data: gameQueryData,
     isLoading: gameQueryIsLoading,
     error: gameQueryError
   } = useGetGameQuery(gameId!);
 
-  // destructure play query result
+  // for displaying button data
   const {
-    data: playQueryData,
-    //isLoading: playQueryIsLoading, 
-    //error: playQueryError
-  } = useGetPlayByUserAndGameIdQuery(
-    getPlayPayload,
+    data: playQueryData
+  } = useGetPlaysQuery(
+    playPayload,
     { skip: !userInfo }
   );
 
