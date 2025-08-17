@@ -34,11 +34,6 @@ export interface DeletePlayPayload {
     playId?: string
 }
 
-export interface GetPlayPayload {
-    userId?: string,
-    gameId?: string
-}
-
 export interface PlayStatusItem {
     playId?: number,
     status?: Status
@@ -46,7 +41,7 @@ export interface PlayStatusItem {
 
 export interface PlayPayload {
     userId?: number,
-    gameId?: number,
+    apiGameId?: number,
     playId?: number,
     statusId?: Status
 }
