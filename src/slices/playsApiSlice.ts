@@ -2,7 +2,6 @@ import { apiSlice } from "./apiSlice";
 import type {
     AddPlayPayload,
     DeletePlayPayload,
-    GetPlayPayload,
     PlayPayload
 } from "../types/PlayTypes";
 
@@ -10,16 +9,6 @@ const PLAYS_URL = '/api/plays';
 
 export const playsApiSlice = apiSlice.injectEndpoints({
     endpoints: (builder) => ({
-        getPlayByUserAndGameId: builder.query({
-            query: (data: GetPlayPayload) => {
-                return {
-                    url: `${PLAYS_URL}/user/${data.userId}/game/${data.gameId}`,
-                    method: 'GET',
-                    credentials: 'include'
-                }
-            },
-            providesTags: ['Play']
-        }),
         getPlays: builder.query({
             query: (playStatus: PlayPayload) => {
                 return {
@@ -28,10 +17,12 @@ export const playsApiSlice = apiSlice.injectEndpoints({
                     credentials: 'include',
                     params: {
                         userId: playStatus.userId,
+                        apiGameId: playStatus.apiGameId,
                         statusId: playStatus.statusId
                     }
                 }
-            }
+            },
+            providesTags: ['Play']
         }),
         addPlay: builder.mutation({
             query: (data: AddPlayPayload) => {
@@ -61,7 +52,6 @@ export const playsApiSlice = apiSlice.injectEndpoints({
 });
 
 export const {
-    useGetPlayByUserAndGameIdQuery,
     useGetPlaysQuery,
     useAddPlayMutation,
     useDeletePlayMutation
