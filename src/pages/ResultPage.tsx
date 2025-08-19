@@ -3,9 +3,10 @@ import { RootState } from "../store";
 import { Status } from "../types/PlayTypes";
 import { toast } from "react-toastify";
 import {
-  useAddPlayMutation,
-  useDeletePlayMutation,
-  useGetPlaysQuery
+  useCreatePlayMutation,
+  useGetPlaysQuery,
+  useUpdatePlayMutation,
+  useDeletePlayMutation
 } from "../slices/playsApiSlice";
 import { useGetGameQuery } from "../slices/gamesApiSlice";
 import { useParams } from "react-router-dom";
@@ -13,11 +14,7 @@ import { useSelector } from "react-redux";
 import { useEffect, useState } from "react";
 import ActiveButton from "../components/ActiveButton";
 import Loader from "../components/Loader";
-import type {
-  AddPlayPayload,
-  DeletePlayPayload,
-  PlayPayload
-} from "../types/PlayTypes";
+import type { PlayRequest } from "../types/PlayTypes";
 
 function ResultPage() {
   // get logged in user
@@ -28,7 +25,7 @@ function ResultPage() {
   const apiGameId: number = Number(gameId);
 
   // data to get play by user and game ID
-  const playPayload: PlayPayload = {
+  const queryPlayRequest: PlayRequest = {
     userId: userInfo.id,
     apiGameId: apiGameId
   }
@@ -44,12 +41,13 @@ function ResultPage() {
   const {
     data: playQueryData
   } = useGetPlaysQuery(
-    playPayload,
+    queryPlayRequest,
     { skip: !userInfo }
   );
 
   // get rtk mutation trigger functions
-  const [addPlay] = useAddPlayMutation();
+  const [createPlay] = useCreatePlayMutation();
+  const [updatePlay] = useUpdatePlayMutation();
   const [deletePlay] = useDeletePlayMutation();
 
   // create a list of headings that correspond to server related entities
@@ -61,10 +59,13 @@ function ResultPage() {
     { heading: "Publisher", content: gameQueryData?.results.publishers }
   ]
 
-  // active tracker for buttons
+  // active tracker for user shelf button
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
+
+  // label tracker for user shelf button
   const [buttonLabel, setButtonLabel] = useState<string>(Status[Status.Wishlist]);
 
+  // loading tracker for user shelf button
   const [loading, setLoading] = useState<boolean>(false);
 
   // modal dialog control
@@ -88,24 +89,36 @@ function ResultPage() {
     }
   }, [playQueryData]);
 
-  const handleTogglePlay = async (statusValue: Status, buttonIndex: number): Promise<void> => {
+  const handleTogglePlay = async (status: Status, buttonIndex: number): Promise<void> => {
     setLoading(true);
     // add/remove play based on active/inactive button state
-    if (activeIndex !== statusValue) {
+    if (activeIndex !== status) {
       try {
-        const addPlayPayload: AddPlayPayload = {
-          userId: userInfo?.id?.toString(),
-          gameId: gameId,
-          status: statusValue
-        };
-        const response = await addPlay(addPlayPayload).unwrap();
-        if (!response) {
-          throw new Error('Error adding play.');
-        }
-        toast.success(response.message);
-        // set the main button to the selected label
-        setActiveIndex(buttonIndex);
-        setButtonLabel(Status[buttonIndex]);
+          const playRequestData: PlayRequest = {
+            userId: userInfo.id,
+            apiGameId: apiGameId,
+            statusId: status
+          };
+
+          let response = null;
+
+          if (activeIndex === null) {
+            // create new play if the active button index was null
+            response = await createPlay(playRequestData).unwrap();
+          } else {
+            // otherwise update the play since a non-null value for
+            // an active button index means that a play already exists
+            response = await updatePlay(playRequestData).unwrap();
+          }
+
+          if (!response) throw new Error('Error adding play.');
+
+          toast.success(response.message);
+
+          // set the main button to the selected label
+          setActiveIndex(buttonIndex);
+          setButtonLabel(Status[buttonIndex]);
+        
       } catch (error) {
         toast.error("Failed to add play.");
         console.error(error);
@@ -115,11 +128,11 @@ function ResultPage() {
     } else {
       try {
         if (activeIndex === playQueryData.status) {
-          const deletePlayPayload: DeletePlayPayload = {
-            userId: userInfo?.id?.toString(),
+          const playRequestData: PlayRequest = {
+            userId: userInfo.id,
             playId: playQueryData.playId
           };
-          const response = await deletePlay(deletePlayPayload).unwrap();
+          const response = await deletePlay(playRequestData).unwrap();
           if (!response) {
             throw new Error('Error removing from shelf.');
           }
