@@ -106,7 +106,7 @@ function SearchBar() {
                     callback([]); // clear options
                     return; // prevent API call
                 }
-                console.log("Input Value: ", inputString);
+                
                 // Trigger the game search query
                 const searchQueryData: GameSearchResults = await triggerSearchQuery({
                     queryParams: { q: encodeURIComponent(inputString) }
