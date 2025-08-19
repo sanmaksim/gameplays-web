@@ -1,31 +1,12 @@
 import { apiSlice } from "./apiSlice";
-import type {
-    AddPlayPayload,
-    DeletePlayPayload,
-    PlayPayload
-} from "../types/PlayTypes";
+import type { PlayRequest } from "../types/PlayTypes";
 
 const PLAYS_URL = '/api/plays';
 
 export const playsApiSlice = apiSlice.injectEndpoints({
     endpoints: (builder) => ({
-        getPlays: builder.query({
-            query: (playStatus: PlayPayload) => {
-                return {
-                    url: `${PLAYS_URL}`,
-                    method: 'GET',
-                    credentials: 'include',
-                    params: {
-                        userId: playStatus.userId,
-                        apiGameId: playStatus.apiGameId,
-                        statusId: playStatus.statusId
-                    }
-                }
-            },
-            providesTags: ['Play']
-        }),
-        addPlay: builder.mutation({
-            query: (data: AddPlayPayload) => {
+        createPlay: builder.mutation({
+            query: (data: PlayRequest) => {
                 return {
                     url: `${PLAYS_URL}`,
                     method: 'POST',
@@ -33,17 +14,58 @@ export const playsApiSlice = apiSlice.injectEndpoints({
                     headers: {
                         'Content-Type': 'application/json'
                     },
-                    body: data
+                    params: {
+                        userId: data.userId,
+                        apiGameId: data.apiGameId,
+                        statusId: data.statusId
+                    }
+                };
+            },
+            invalidatesTags: ['Play'] // to auto refetch query
+        }),
+        getPlays: builder.query({
+            query: (data: PlayRequest) => {
+                return {
+                    url: `${PLAYS_URL}`,
+                    method: 'GET',
+                    credentials: 'include',
+                    params: {
+                        userId: data.userId,
+                        apiGameId: data.apiGameId,
+                        statusId: data.statusId
+                    }
+                }
+            },
+            providesTags: ['Play']
+        }),
+        updatePlay: builder.mutation({
+            query: (data: PlayRequest) => {
+                return {
+                    url: `${PLAYS_URL}`,
+                    method: 'PUT',
+                    credentials: 'include',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    params: {
+                        userId: data.userId,
+                        apiGameId: data.apiGameId,
+                        statusId: data.statusId
+                    }
                 };
             },
             invalidatesTags: ['Play'] // to auto refetch query
         }),
         deletePlay: builder.mutation({
-            query: (data: DeletePlayPayload) => {
+            query: (data: PlayRequest) => {
                 return {
-                    url: `${PLAYS_URL}/user/${data.userId}/play/${data.playId}`,
+                    url: `${PLAYS_URL}`,
                     method: 'DELETE',
-                    credentials: 'include'
+                    credentials: 'include',
+                    params: {
+                        userId: data.userId,
+                        playId: data.playId
+                    }
                 }
             },
             invalidatesTags: ['Play'] // to auto refetch query
@@ -52,7 +74,8 @@ export const playsApiSlice = apiSlice.injectEndpoints({
 });
 
 export const {
+    useCreatePlayMutation,
     useGetPlaysQuery,
-    useAddPlayMutation,
+    useUpdatePlayMutation,
     useDeletePlayMutation
 } = playsApiSlice;
