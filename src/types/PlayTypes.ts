@@ -5,7 +5,7 @@ export enum Status {
     Backlog
 }
 
-export interface PlayData {
+export interface PlayResponse {
     id?: number,
     name?: string,
     developers?: [
@@ -23,23 +23,7 @@ export interface PlayData {
     api_game_id?: number
 }
 
-export interface AddPlayPayload {
-    userId?: string,
-    gameId?: string,
-    status?: Status
-}
-
-export interface DeletePlayPayload {
-    userId?: string,
-    playId?: string
-}
-
-export interface PlayStatusItem {
-    playId?: number,
-    status?: Status
-}
-
-export interface PlayPayload {
+export interface PlayRequest {
     userId?: number,
     apiGameId?: number,
     playId?: number,
