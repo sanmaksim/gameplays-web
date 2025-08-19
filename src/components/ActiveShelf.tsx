@@ -5,7 +5,7 @@ import { useEffect } from "react";
 import { useGetPlaysQuery } from "../slices/playsApiSlice";
 import { useSelector } from "react-redux";
 import Loader from "./Loader";
-import type { PlayData, PlayPayload } from "../types/PlayTypes";
+import type { PlayResponse, PlayRequest } from "../types/PlayTypes";
 
 type Props = {
     status: number
@@ -14,7 +14,7 @@ type Props = {
 function Shelf({ status }: Props) {
     const { userInfo } = useSelector((state: RootState) => state.auth);
 
-    const playStatus: PlayPayload = {
+    const playRequestData: PlayRequest = {
         userId: userInfo.id,
         statusId: status
     }
@@ -23,7 +23,7 @@ function Shelf({ status }: Props) {
         data: playQueryData,
         isLoading,
         refetch: refetchPlayQueryData
-    } = useGetPlaysQuery(playStatus, { skip: !userInfo });
+    } = useGetPlaysQuery(playRequestData, { skip: !userInfo });
 
     useEffect(() => {
         refetchPlayQueryData()
@@ -45,7 +45,7 @@ function Shelf({ status }: Props) {
                         </tr>
                     </thead>
                     <tbody>
-                        {playQueryData.map((play: PlayData) => {
+                        {playQueryData.map((play: PlayResponse) => {
                             return (
                                 <tr key={play.id}>
                                     <td><Link to={`/game/${play.api_game_id}`}>{play.name}</Link></td>
