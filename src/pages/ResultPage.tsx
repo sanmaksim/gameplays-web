@@ -26,7 +26,7 @@ function ResultPage() {
 
   // data to get play by user and game ID
   const queryPlayRequest: PlayRequest = {
-    userId: userInfo.id,
+    userId: userInfo?.id,
     apiGameId: apiGameId
   }
 
@@ -35,7 +35,7 @@ function ResultPage() {
     data: gameQueryData,
     isLoading: gameQueryIsLoading,
     error: gameQueryError
-  } = useGetGameQuery(gameId!);
+  } = useGetGameQuery(apiGameId);
 
   // for displaying button data
   const {
