@@ -6,20 +6,20 @@ import {
 } from 'react-router-dom';
 import { RootState } from './store';
 import { useSelector } from 'react-redux';
-import AboutPage from './pages/AboutPage';
+// import AboutPage from './pages/AboutPage';
 import GamesPage from './pages/GamesPage';
-import HelpPage from './pages/HelpPage';
+// import HelpPage from './pages/HelpPage';
 import HomePage from './pages/HomePage';
 import LoginPage from './pages/LoginPage';
 import MainLayout from './layouts/MainLayout';
 import NotFoundPage from './pages/NotFoundPage';
-import PrivacyPage from './pages/PrivacyPage';
+// import PrivacyPage from './pages/PrivacyPage';
 import PrivateRoute from './components/PrivateRoute';
 import ProfilePage from './pages/ProfilePage';
 import RegisterPage from './pages/RegisterPage';
 import ResultPage from './pages/ResultPage';
 import SearchPage from './pages/SearchPage';
-import TosPage from './pages/TosPage';
+// import TosPage from './pages/TosPage';
 
 function App() {
   const { userInfo } = useSelector((state: RootState) => state.auth);
@@ -46,10 +46,10 @@ function App() {
         )}
         
         {/* Info Routes */}
-        <Route path='/about' element={<AboutPage />} />
+        {/* <Route path='/about' element={<AboutPage />} />
         <Route path='/help' element={<HelpPage />} />
         <Route path='/privacy' element={<PrivacyPage />} />
-        <Route path='/tos' element={<TosPage />} />
+        <Route path='/tos' element={<TosPage />} /> */}
 
         {/* Search Route */}
         <Route path='/game/:gameId' element={<ResultPage />} />

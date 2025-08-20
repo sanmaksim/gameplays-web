@@ -8,11 +8,11 @@ function Footer() {
             <footer className="d-flex flex-wrap justify-content-between align-items-center py-3 my-4 border-top">
                 <div className="col-md-4 mb-0 text-body-secondary">
                     <div>&copy; {currentYear} Gameplays. All rights reserved.</div>
-                    <div>Game data provided by <Link target="_blank" to="http://www.giantbomb.com">GiantBomb's</Link> <Link target="_blank" to="http://www.giantbomb.com/api/">API</Link></div>
+                    {/* <div>Game data provided by <Link target="_blank" to="http://www.giantbomb.com">GiantBomb's</Link> <Link target="_blank" to="http://www.giantbomb.com/api/">API</Link></div> */}
                 </div>
                 
                 <ul className="nav col-md-4 justify-content-end">
-                    <li className="nav-item">
+                    {/* <li className="nav-item">
                         <Link className="nav-link px-2 text-body-secondary" to="/about">About</Link>
                     </li>
                     <li className="nav-item">
@@ -23,7 +23,10 @@ function Footer() {
                     </li>
                     <li className="nav-item">
                         <Link className="nav-link px-2 text-body-secondary" to="/tos">Terms of Service</Link>
-                    </li>
+                    </li> */}
+                    <div className="text-body-secondary">
+                        Game data provided by <Link target="_blank" to="http://www.giantbomb.com">GiantBomb's</Link> <Link target="_blank" to="http://www.giantbomb.com/api/">API</Link>
+                    </div>
                 </ul>
             </footer>
         </div>
