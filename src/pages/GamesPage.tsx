@@ -45,7 +45,7 @@ function GamesPage() {
         default:
             shelf = null;
     }
-    // TODO: make menu and active shelf responsive
+    
     return (
         <Container className="mt-4 d-flex">
             {isBelowMobileThreshold ? (
