@@ -25,7 +25,7 @@ function LoginPage() {
     const {userInfo} = useSelector((state: RootState) => state.auth);
 
     // direct the user to the previous path if there is one
-    // otherwise go back to the user games page
+    // otherwise navigate to the user games page
     useEffect(() => {
         if (userInfo) {
             if (previousPath && previousPath !== '/') {
