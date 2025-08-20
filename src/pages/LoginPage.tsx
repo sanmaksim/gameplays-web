@@ -28,7 +28,7 @@ function LoginPage() {
     // otherwise navigate to the user games page
     useEffect(() => {
         if (userInfo) {
-            if (previousPath && previousPath !== '/') {
+            if (previousPath && previousPath !== '/' && previousPath !== '/login') {
                 navigate(previousPath);
             } else {
                 navigate('/user/games');
