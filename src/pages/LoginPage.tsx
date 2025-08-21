@@ -73,7 +73,28 @@ function LoginPage() {
             dispatch(setCredentials({...response}));
             navigate(previousPath);
         } catch (error: any) {
-            toast.error(error.data.message || "An error occurred.");
+            if (error.data.message) {
+                toast.error(error.data.message);
+            } else {
+                // Fluent Validation error Array labels
+                const fields = ['Username', 'Email', 'Password'];
+                let errorShown = false;
+
+                fields.forEach(field => {
+                    if (error.data[field] && Array.isArray(error.data[field])) {
+                        error.data[field].forEach((message: string) => {
+                            // Replace any hardcoded field names in the message with the current field name
+                            const formattedMessage = message.replace(/Username|Email|Password/g, field);
+                            toast.error(formattedMessage);
+                            errorShown = true;
+                        });
+                    }
+                });
+
+                if (!errorShown) {
+                    toast.error("An error occurred.");
+                }
+            }
         }
     };
 
