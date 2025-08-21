@@ -11,7 +11,7 @@ import Button from 'react-bootstrap/esm/Button';
 import Card from 'react-bootstrap/esm/Card';
 import Form from 'react-bootstrap/esm/Form';
 import Loader from '../components/Loader';
-import type { CredentialPayload } from '../types/UserTypes';
+import type { CredentialRequest } from '../types/UserTypes';
 
 function LoginPage() {
     // get the prev path from the page context for post login redirect
@@ -60,7 +60,7 @@ function LoginPage() {
         credential = {username: cred};
     }
 
-    const payload: CredentialPayload = {
+    const credRequestData: CredentialRequest = {
         ...credential,
         password: pwd
     }
@@ -69,7 +69,7 @@ function LoginPage() {
         evt.preventDefault();
         
         try {
-            const response = await login(payload).unwrap();
+            const response = await login(credRequestData).unwrap();
             dispatch(setCredentials({...response}));
             navigate(previousPath);
         } catch (error: any) {

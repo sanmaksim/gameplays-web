@@ -1,9 +1,9 @@
-export interface CredentialPayload {
+export interface CredentialRequest {
     username?: string,
     email?: string,
     password?: string
 }
 
-export interface UserPayload extends CredentialPayload {
+export interface UserRequest extends CredentialRequest {
     userId: number
 }
