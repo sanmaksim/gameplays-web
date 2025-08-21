@@ -11,7 +11,7 @@ import Card from 'react-bootstrap/esm/Card';
 import Form from 'react-bootstrap/esm/Form';
 import Modal from 'react-bootstrap/Modal';
 import Loader from '../components/Loader';
-import type { UserPayload } from '../types/UserTypes';
+import type { UserRequest } from '../types/UserTypes';
 
 function ProfilePage() {
     const [un, setUn] = useState('');
@@ -48,7 +48,7 @@ function ProfilePage() {
     const handleCloseModal = () => setShowModal(false);
     const handleShowModal = () => setShowModal(true);
 
-    const payload: UserPayload = {
+    const userRequestData: UserRequest = {
         userId: userInfo.id,
         username: un,
         email: mail,
@@ -62,39 +62,36 @@ function ProfilePage() {
             toast.error('Passwords do not match.');
         } else {
             try {
-                // Do not unwrap the mutation since we need to
-                // test for which properties are present
-                const response = await updateUser(payload);
-                if (
-                    response.data 
-                    && response.data.id
-                    && response.data.username
-                    && response.data.email
-                ) {
-                    // Set user credentials if the response
-                    // contains the expected user data
-                    dispatch(setCredentials(response.data));
-                    toast.success("Changes saved.");
-                } else if (
-                    response.data
-                    && response.data.message
-                ) {
-                    // Display the message if that is all
-                    // that is returned by the response
-                    toast.success(response.data.message);
-                } else if (response.error) {
-                    // We need to extract a suitable message string
-                    // from the response before passing it to the toast
-                    const message = (response.error as any)?.data?.message
-                                    || (response.error as Error)?.message
-                                    || "An error occurred";
-                    toast.error(message);
-                }
+                const response = await updateUser(userRequestData).unwrap();
+                dispatch(setCredentials(response));
+                toast.success("Changes saved.");
                 // Always clear the password fields
                 setPwd('');
                 setConfirmPwd('');
-            } catch (error) {
-                toast.error("An error occurred.");
+            } catch (error: any) {
+                if (error.data.message) {
+                    toast.error(error.data.message);
+                } else {
+                    // Fluent Validation error Array labels
+                    const fields = ['Username', 'Email', 'Password'];
+                    let errorShown = false;
+
+                    fields.forEach(field => {
+                        if (error.data[field] && Array.isArray(error.data[field])) {
+                            error.data[field].forEach((message: string) => {
+                                // Replace any hardcoded field names in the message with the current field name
+                                const formattedMessage = message.replace(/Username|Email|Password/g, field);
+                                toast.error(formattedMessage);
+                                errorShown = true;
+                            });
+                        }
+                    });
+
+                    if (!errorShown) {
+                        toast.error("An error occurred.");
+                        console.error(error);
+                    }
+                }
             }
         }
     };
