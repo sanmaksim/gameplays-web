@@ -2,13 +2,7 @@ import { BaseQueryApi, createApi, FetchArgs, fetchBaseQuery } from "@reduxjs/too
 import { clearCredentials, setCredentials } from "./authSlice";
 
 const apiAuth = '/api/auth';
-let serverUrl = "";
-
-if (process.env.NODE_ENV === 'development') {
-    serverUrl = "https://localhost:5001";
-} else {
-    serverUrl = "https://gameplays.test";
-}
+const serverUrl = import.meta.env.VITE_API_URL;
 
 const baseQuery = fetchBaseQuery({ baseUrl: serverUrl });
 
