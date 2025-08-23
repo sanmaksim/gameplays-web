@@ -1,6 +1,6 @@
 # Gameplays
 
-Gameplays Web is the React and TypeScript frontend for the Gameplays video game tracker web app.
+This is the React and TypeScript frontend for the Gameplays video game tracker web app.
 
 It delivers a modern, responsive user interface, connecting seamlessly with the backend API.
 
