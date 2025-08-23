@@ -1,4 +1,4 @@
-# Gameplays
+# gameplays-web
 
 This is the React and TypeScript frontend for the Gameplays video game tracker web app.
 
