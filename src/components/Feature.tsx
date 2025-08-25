@@ -12,14 +12,16 @@ function Feature() {
                         <Steam />
                     </div>
                     <h3 className="fs-2 text-body-emphasis">Import from Steam</h3>
-                    <p>Prefer an effortless setup? Seamlessly sync with Steam and focus on what you love most: gaming!</p>
+                    <p>Coming soon!</p>
+                    {/* <p>Prefer an effortless setup? Seamlessly sync with Steam and focus on what you love most: gaming!</p> */}
                 </div>
                 <div className="feature col">
                     <div className="feature-icon d-inline-flex align-items-center justify-content-center text-dark fs-2 mb-3">
                         <FontAwesomeIcon icon={faShareNodes} />
                     </div>
                     <h3 className="fs-2 text-body-emphasis">Share with friends</h3>
-                    <p>Want to show off your game collection and progress? Easily share with friends and showcase your gaming achievements!</p>
+                    <p>Coming soon!</p>
+                    {/* <p>Want to show off your game collection and progress? Easily share with friends and showcase your gaming achievements!</p> */}
                 </div>
                 <div className="feature col">
                     <div className="feature-icon d-inline-flex align-items-center justify-content-center text-dark fs-2 mb-3">
