@@ -49,7 +49,13 @@ function SearchPage() {
                     <ListGroup>
                         {data.results && data.results.map((result: GameSearchResult) => (
                             <ListGroup.Item key={result.id} className="d-flex">
-                                <img src={result.image && result.image.icon_url} alt={result.name} className="me-2" />
+                                <img
+                                    alt={result.name}
+                                    className="me-2"
+                                    height="80"
+                                    src={result.image && result.image.icon_url}
+                                    width="80"
+                                />
                                 <div>
                                     <h6><strong><Link to={`/game/${result.id}`}>{result.name}</Link></strong></h6>
                                     <p>{result.deck}</p>
