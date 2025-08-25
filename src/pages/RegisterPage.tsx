@@ -22,7 +22,7 @@ function RegisterPage() {
 
     useEffect(() => {
         if (userInfo) {
-            navigate('/');
+            navigate('/user/games');
         }
     }, [navigate, userInfo]);
 
