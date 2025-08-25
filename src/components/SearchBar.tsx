@@ -172,7 +172,13 @@ function SearchBar() {
                         && data.url
                         && data.image.tiny_url ? (
                         <>
-                            <img src={data.image.tiny_url} alt={data.label} className="me-2" />
+                            <img
+                                alt={data.label}
+                                className="me-2"
+                                height="30"
+                                src={data.image.tiny_url}
+                                width="30"
+                            />
                             <div>
                                 <Link to={data.url} style={{ textDecoration: 'none', color: 'inherit' }}>{data.label}</Link> - {formattedDate!}
                             </div>
