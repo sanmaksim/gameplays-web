@@ -9,7 +9,7 @@ import {
   useDeletePlayMutation
 } from "../slices/playsApiSlice";
 import { useGetGameQuery } from "../slices/gamesApiSlice";
-import { useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { useEffect, useState } from "react";
 import ActiveButton from "../components/ActiveButton";
@@ -274,7 +274,11 @@ function ResultPage() {
                         </Modal>
                       </>
                     ) : (
-                      <></>
+                      <Card.Text as={"div"} className="mt-auto">
+                        <Card.Subtitle className="text-white-50">
+                          <Link to="/login">Sign in</Link> to add game to library!
+                        </Card.Subtitle>
+                      </Card.Text>
                     )}
                   </div>
                 </Col>
@@ -315,7 +319,23 @@ function ResultPage() {
                     </tbody>
                   </Table>
                 </Col>
-                <Col xs={12} md={7} lg={8} xxl={9}></Col>
+                <Col xs={12} md={7} lg={8} xxl={9}>
+                  {/* Game description */}
+                  <Card className="border-0">
+                    <Table>
+                      <thead>
+                        <tr>
+                          <th>
+                            <Card.Title className="fw-bold">Description</Card.Title>
+                          </th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <p><Card.Text>{gameQueryData.results.description}</Card.Text></p>
+                      </tbody>
+                    </Table>
+                  </Card>
+                </Col>
               </Row>
             </Card.Body>
           </Card>
