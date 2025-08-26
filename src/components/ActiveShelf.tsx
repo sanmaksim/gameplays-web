@@ -44,9 +44,9 @@ function Shelf({ status }: Props) {
                             <th>Developer</th>
                             <th>Release Date</th>
                             <th>Date Added</th>
-                            <th>Hours Played</th>
-                            <th>% Completed</th>
-                            <th>Last Played</th>
+                            {/* <th>Hours Played</th> */}
+                            {/* <th>% Completed</th> */}
+                            {/* <th>Last Played</th> */}
                         </tr>
                     </thead>
                     <tbody>
@@ -67,9 +67,9 @@ function Shelf({ status }: Props) {
                                     </td>
                                     <td>{play.original_release_date}</td>
                                     <td>{play.created_at}</td>
-                                    <td>{play.hours_played}</td>
-                                    <td>{play.percentage_completed}</td>
-                                    <td>{play.last_played_at}</td>
+                                    {/* <td>{play.hours_played}</td> */}
+                                    {/* <td>{play.percentage_completed}</td> */}
+                                    {/* <td>{play.last_played_at}</td> */}
                                 </tr>
                             )
                         })}
