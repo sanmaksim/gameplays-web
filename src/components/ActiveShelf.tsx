@@ -77,7 +77,7 @@ function Shelf({ status }: Props) {
                 </Table>
             ) : (
                 <div className="d-flex align-items-center justify-content-center w-100">
-                    {isLoading ? <Loader /> : <p className="m-0">Empty shelf.</p>}
+                    {isLoading ? <Loader /> : <p className="m-0">Empty shelf. Try searching for a game!</p>}
                 </div>
             )}
         </>
