@@ -3,14 +3,11 @@ name: Build and Push ARM64 Docker Image to ECR
 on:
   push:
     branches: [ "main" ]
-  pull_request:
-    branches: [ "main" ]
 
 env:
   AWS_REGION: ap-southeast-2
   ECR_NAMESPACE: gameplays
   ECR_REPOSITORY: gameplays-web
-  IMAGE_TAG: latest
 
 jobs:
   build-and-push:
@@ -43,7 +40,7 @@ jobs:
         file: ./Dockerfile
         platforms: linux/arm64
         push: true
-        tags: ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_NAMESPACE }}/${{ env.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }}
+        tags: ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_NAMESPACE }}/${{ env.ECR_REPOSITORY }}:${{ github.sha }}
 
     - name: Output image URI
-      run: echo "IMAGE_URI=${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_NAMESPACE }}/${{ env.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }}" >> $GITHUB_ENV
+      run: echo "IMAGE_URI=${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_NAMESPACE }}/${{ env.ECR_REPOSITORY }}:${{ github.sha }}" >> $GITHUB_ENV
