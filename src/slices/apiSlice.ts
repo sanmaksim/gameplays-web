@@ -19,7 +19,7 @@ const baseQuery = fetchBaseQuery({ baseUrl: serverUrl });
  * This centralizes authentication and token refresh logic, ensuring all endpoints
  * in the API slice benefit from robust, consistent error handling.
  */
-const baseQueryWithReauth = async (args: string | FetchArgs, api: BaseQueryApi, extraOptions: {}) => {
+const baseQueryWithReauth = async (args: string | FetchArgs, api: BaseQueryApi, extraOptions: Record<string, unknown>) => {
     let result = await baseQuery(args, api, extraOptions);
     if (result.error && result.error.status === 401) {
         // Attempt to refresh both access & refresh tokens
