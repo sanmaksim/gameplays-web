@@ -331,7 +331,11 @@ function ResultPage() {
                         </tr>
                       </thead>
                       <tbody>
-                        <p><Card.Text>{gameQueryData.results.description}</Card.Text></p>
+                        <tr>
+                          <td>
+                            <Card.Text as="div">{gameQueryData.results.description}</Card.Text>
+                          </td>
+                        </tr>
                       </tbody>
                     </Table>
                   </Card>
