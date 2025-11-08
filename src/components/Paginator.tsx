@@ -1,5 +1,4 @@
 import { Pagination } from "react-bootstrap";
-import { useMemo } from "react";
 import { useSearchParams } from "react-router-dom";
 import type { GameSearchResults } from "../types/GameTypes";
 
@@ -55,10 +54,9 @@ function Paginator({ searchResults }: Props) {
     changePage(newPage);
   };
 
-  // useMemo for performance
-  // pagination buttons are only recalculated when currentPage or totalPages change
-  const pages = useMemo(() => {
-    let pageItems: Array<JSX.Element> = [];
+  // calculate pagination buttons
+  const renderPages = (): JSX.Element[] => {
+    const pageItems: Array<JSX.Element> = [];
 
     // Left ellipsis
     if (currentPage > visible - adjacent) {
@@ -86,13 +84,13 @@ function Paginator({ searchResults }: Props) {
     }
 
     return pageItems;
-  }, [currentPage, totalPages]);
+  };
 
   return (
     <Pagination>
       <Pagination.First disabled={currentPage === 1} onClick={() => changePage(1)} />
       <Pagination.Prev disabled={currentPage === 1} onClick={() => changePage(currentPage - 1)} />
-      {pages}
+      {renderPages()}
       <Pagination.Next disabled={currentPage === totalPages} onClick={() => changePage(currentPage + 1)} />
       <Pagination.Last disabled={currentPage === totalPages} onClick={() => changePage(totalPages)} />
     </Pagination>
