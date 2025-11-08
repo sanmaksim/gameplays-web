@@ -57,9 +57,34 @@ function NavBar() {
             dispatch(clearCredentials());
             navigate('/');
             toast.success(response.message);
-        } catch (error: any) {
-            toast.error(error.data.message || "An error occurred.");
-            console.error(error);
+        } catch (error: unknown) {
+            const getErrorMessage = (err: unknown): string => {
+            if (typeof err === 'object' && err !== null) {
+                const anyErr = err as Record<string, unknown>;
+
+                // RTK Query often puts payload in `data`
+                if ('data' in anyErr) {
+                    const data = anyErr.data;
+                    if (typeof data === 'string') return data;
+                    if (typeof data === 'object' && data !== null) {
+                        const dataObj = data as Record<string, unknown>;
+                        if ('message' in dataObj && typeof dataObj.message === 'string') {
+                            return dataObj.message;
+                        }
+                    }
+                }
+
+                // sometimes error text is in `.error`
+                if ('error' in anyErr && typeof anyErr.error === 'string') {
+                    return anyErr.error;
+                }
+            }
+
+            if (err instanceof Error) return err.message;
+                return 'An error occurred.';
+            };
+
+            toast.error(getErrorMessage(error));
         }
     };
 

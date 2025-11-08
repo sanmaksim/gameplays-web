@@ -16,7 +16,7 @@ function SearchPage() {
 
     const fetchGameData = async (searchString: string, pageString: string): Promise<GameSearchResults> => {
         try {
-            let queryParams: { q: string, page?: string } = {
+            const queryParams: { q: string, page?: string } = {
                 q: searchString
             }
             if (pageString) {
@@ -27,7 +27,7 @@ function SearchPage() {
                 throw new Error('Error returning game data.');
             }
             return searchQueryData;
-        } catch (error: any) {
+        } catch (error: unknown) {
             toast.error('Failed to fetch game data.');
             console.error(error);
             return {}

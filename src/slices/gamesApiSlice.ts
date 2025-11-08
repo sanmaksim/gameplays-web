@@ -19,7 +19,6 @@ export const gamesApiSlice = apiSlice.injectEndpoints({
                     url: `${GAMES_URL}/search`,
                     method: 'GET',
                     headers: {
-                        'Content-Type': 'application/json',
                         'Result-Limit': limit
                     },
                     params: queryParams

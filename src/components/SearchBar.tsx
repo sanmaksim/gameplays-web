@@ -10,6 +10,7 @@ import { CSSProperties, KeyboardEvent, useEffect, useRef, useState } from 'react
 import { Link, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { useLazySearchQuery } from '../slices/gamesApiSlice';
+import { useLocation } from 'react-router-dom';
 import AsyncSelect from 'react-select/async';
 import debounce from 'lodash.debounce';
 import type { GameSearchResult, GameSearchResults } from '../types/GameTypes';
@@ -24,6 +25,7 @@ type Options = Option[];
 
 function SearchBar() {
     const navigate = useNavigate();
+    const location = useLocation();
 
     // track user entered input
     const [inputValue, setInputValue] = useState<string>('');

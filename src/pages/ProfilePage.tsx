@@ -33,7 +33,12 @@ function ProfilePage() {
     useEffect(() => {
         setUn(userInfo.username);
         setMail(userInfo.email);
-    }, [userInfo.setUn, userInfo.setMail]);
+    }, [
+        userInfo.username, 
+        userInfo.email, 
+        userInfo.setUn, 
+        userInfo.setMail
+    ]);
 
     const handleUnInputChange = (evt: ChangeEvent<HTMLInputElement>) => {
         setUn(evt.target.value);
@@ -68,19 +73,38 @@ function ProfilePage() {
                 // Always clear the password fields
                 setPwd('');
                 setConfirmPwd('');
-            } catch (error: any) {
-                if (error.data.message) {
-                    toast.error(error.data.message);
-                } else {
+            } catch (error: unknown) {
+                // Safely extract response-like `.data` without using `any`
+                const getDataFromError = (e: unknown): unknown => {
+                    if (typeof e !== 'object' || e === null) return null;
+                    const obj = e as Record<string, unknown>;
+                    if (obj.response && typeof obj.response === 'object' && obj.response !== null) {
+                        const resp = obj.response as Record<string, unknown>;
+                        return resp.data ?? null;
+                    }
+                    return obj.data ?? null;
+                };
+
+                const data = getDataFromError(error);
+
+                if (data && typeof data === 'object') {
+                    const dataObj = data as Record<string, unknown>;
+
+                    if (typeof dataObj.message === 'string') {
+                        toast.error(dataObj.message);
+                        return;
+                    }
+
                     // Fluent Validation error Array labels
-                    const fields = ['Username', 'Email', 'Password'];
+                    const fields = ['Username', 'Email', 'Password'] as const;
                     let errorShown = false;
 
                     fields.forEach(field => {
-                        if (error.data[field] && Array.isArray(error.data[field])) {
-                            error.data[field].forEach((message: string) => {
+                        const fieldErrors = dataObj[field];
+                        if (Array.isArray(fieldErrors)) {
+                            fieldErrors.forEach((message) => {
                                 // Replace any hardcoded field names in the message with the current field name
-                                const formattedMessage = message.replace(/Username|Email|Password/g, field);
+                                const formattedMessage = String(message).replace(/Username|Email|Password/g, field);
                                 toast.error(formattedMessage);
                                 errorShown = true;
                             });
@@ -88,10 +112,22 @@ function ProfilePage() {
                     });
 
                     if (!errorShown) {
-                        toast.error("An error occurred.");
-                        console.error(error);
+                        toast.error('An error occurred.');
                     }
+                    return;
                 }
+
+                if (typeof error === 'string') {
+                    toast.error(error);
+                    return;
+                }
+
+                if (error instanceof Error && error.message) {
+                    toast.error(error.message);
+                    return;
+                }
+
+                toast.error('An error occurred.');
             }
         }
     };
@@ -102,8 +138,43 @@ function ProfilePage() {
             dispatch(clearCredentials());
             navigate('/');
             toast.success(response.message);
-        } catch (error: any) {
-            toast.error(error.data.message || "An error occurred.");
+        } catch (error: unknown) {
+            // Safely extract response-like `.data` without using `any`
+            const getDataFromError = (e: unknown): unknown => {
+                if (typeof e !== 'object' || e === null) return null;
+                const obj = e as Record<string, unknown>;
+                if (obj.response && typeof obj.response === 'object' && obj.response !== null) {
+                    const resp = obj.response as Record<string, unknown>;
+                    return resp.data ?? null;
+                }
+                return obj.data ?? null;
+            };
+
+            const data = getDataFromError(error);
+
+            if (data && typeof data === 'object') {
+                const dataObj = data as Record<string, unknown>;
+
+                if (typeof dataObj.message === 'string') {
+                    toast.error(dataObj.message);
+                    return;
+                } else {
+                    toast.error('An error occurred.');
+                }
+                return;
+            }
+
+            if (typeof error === 'string') {
+                toast.error(error);
+                return;
+            }
+
+            if (error instanceof Error && error.message) {
+                toast.error(error.message);
+                return;
+            }
+
+            toast.error('An error occurred.');
         }
     };
 

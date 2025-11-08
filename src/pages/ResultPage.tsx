@@ -308,7 +308,7 @@ function ResultPage() {
                             </Card.Text>
                           </td>
                           <td>
-                            {gameEntity.content && gameEntity.content.map((entity: any) => (
+                            {gameEntity.content && gameEntity.content.map((entity: {id: string, name: string}) => (
                               <li key={entity.id} style={{ listStyle: 'none' }}>
                                 <Card.Text>{entity.name}</Card.Text>
                               </li>
@@ -331,7 +331,11 @@ function ResultPage() {
                         </tr>
                       </thead>
                       <tbody>
-                        <p><Card.Text>{gameQueryData.results.description}</Card.Text></p>
+                        <tr>
+                          <td>
+                            <Card.Text as="div">{gameQueryData.results.description}</Card.Text>
+                          </td>
+                        </tr>
                       </tbody>
                     </Table>
                   </Card>
