@@ -308,7 +308,7 @@ function ResultPage() {
                             </Card.Text>
                           </td>
                           <td>
-                            {gameEntity.content && gameEntity.content.map((entity: any) => (
+                            {gameEntity.content && gameEntity.content.map((entity: {id: string, name: string}) => (
                               <li key={entity.id} style={{ listStyle: 'none' }}>
                                 <Card.Text>{entity.name}</Card.Text>
                               </li>
